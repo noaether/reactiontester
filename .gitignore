@@ -11,6 +11,11 @@ pubspec.lock
 # If you don't generate documentation locally you can remove this line.
 doc/api/
 
+# Fuck if i know
+.vscode/
+.idea/
+reflex_tester.7z
+
 # Avoid committing generated Javascript files:
 *.dart.js
 *.info.json      # Produced by the --dump-info flag.
@@ -19,3 +24,5 @@ doc/api/
 *.js_
 *.js.deps
 *.js.map
+.flutter-plugins
+.flutter-plugins-dependencies
