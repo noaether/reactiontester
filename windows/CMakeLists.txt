@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
-project(reflex_tester LANGUAGES CXX)
+project(reflextester LANGUAGES CXX)
 
-set(BINARY_NAME "reflex_tester")
+set(BINARY_NAME "reflextester")
 
 cmake_policy(SET CMP0063 NEW)
 
