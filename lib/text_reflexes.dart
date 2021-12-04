@@ -6,10 +6,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:core';
 import 'dart:math';
 
+import 'package:reflex_tester/main.dart';
+
 Text? randomText1;
 Text? randomText4;
 Text? randomText5;
 Text? randomText6;
+
+int avgTimeTakenText = 0;
 
 List<Text?> buttonFonts = [
   randomText1,
@@ -135,16 +139,21 @@ class textReflexesState extends State<textReflexes> {
         randomText1 == randomText6) {
       newFont();
     }
-    int avgTimeTaken = 1 +
+    int avgTimeTakenT = 1 +
         (avgTimeText.map((m) => m).reduce((a, b) => a + b) / avgTimeText.length)
             .ceil();
+    avgTimeTakenText = avgTimeTakenT;
     // ignore: avoid_print
     print("Correct button is : " + randomButton.toString());
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
-        leading: const BackButton(),
-        title: Text('Colour Reflexes - Average time taken : $avgTimeTaken ms'),
+        leading: BackButton(
+            onPressed: () => {
+                  Navigator.of(context).pushAndRemoveUntil(
+                      createRoute(HomeScreen()), (route) => false)
+                }),
+        title: Text('Colour Reflexes - Average time taken : $avgTimeTakenT ms'),
         backgroundColor: Colors.blue[700],
       ),
       // ignore: prefer_const_constructors
@@ -280,5 +289,23 @@ void wrongAnswer(BuildContext context) {
 }
 
 void goBack(BuildContext context) {
-  Navigator.of(context).pop();
+  Navigator.of(context).push(createRoute(HomeScreen()));
+}
+
+Route createRoute(Widget widget) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => widget,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0);
+      const end = Offset.zero;
+      const curve = Curves.ease;
+
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
 }

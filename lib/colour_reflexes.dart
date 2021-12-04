@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 import 'dart:core';
 import 'dart:math';
 
+import 'main.dart';
+
 Color? randomColour1 = Colors.transparent;
 
 Color? randomColour4 = Colors.transparent;
 Color? randomColour5 = Colors.transparent;
 Color? randomColour6 = Colors.transparent;
+
+int avgTimeTakenColour = 0;
 
 int dateInMS = 0;
 
@@ -115,24 +119,28 @@ class colourReflexesState extends State<colourReflexes> {
   Widget build(BuildContext context) {
     int dateInMS = DateTime.now().millisecondsSinceEpoch;
     timeDiffColours.add(dateInMS);
-    start();
     randomButton = Random().nextInt(3);
     if (randomColour1 == randomColour4 ||
         randomColour1 == randomColour5 ||
         randomColour1 == randomColour6) {
       newColour();
     }
-    int avgTimeTaken = 1 +
+    int avgTimeTakenC = 1 +
         (avgTimeColours.map((m) => m).reduce((a, b) => a + b) /
                 avgTimeColours.length)
             .ceil();
+    avgTimeTakenColour = avgTimeTakenC;
     // ignore: avoid_print
     print("Correct button is : " + randomButton.toString());
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
-        leading: const BackButton(),
-        title: Text('Colour Reflexes - Average time taken : $avgTimeTaken ms'),
+        leading: BackButton(
+            onPressed: () => {
+                  Navigator.of(context).pushAndRemoveUntil(
+                      createRoute(HomeScreen()), (route) => false)
+                }),
+        title: Text('Colour Reflexes - Average time taken : $avgTimeTakenC ms'),
         backgroundColor: Colors.blue[700],
       ),
       // ignore: prefer_const_constructors
@@ -248,7 +256,20 @@ void wrongAnswer(BuildContext context) {
   ));
 }
 
-void goBack(BuildContext context) {
-  dateInMS = 0;
-  Navigator.of(context).pop();
+Route createRoute(Widget widget) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => widget,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0);
+      const end = Offset.zero;
+      const curve = Curves.ease;
+
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
 }

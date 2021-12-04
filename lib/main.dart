@@ -12,16 +12,6 @@ import 'package:flutter/material.dart';
 
 import 'dart:core';
 
-Color? randomColour1 = Colors.transparent;
-
-Color? randomColour4 = Colors.transparent;
-Color? randomColour5 = Colors.transparent;
-Color? randomColour6 = Colors.transparent;
-
-List buttonColours = [];
-List<int> timeDiffColours = [];
-List<int> avgTimeColours = [0];
-
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 void main() {
@@ -33,16 +23,22 @@ class GameChoices extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: HomeScreen());
+    return MaterialApp(home: HomeScreen());
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey[900],
+      backgroundColor: const Color.fromRGBO(0, 65, 95, 1),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -51,15 +47,26 @@ class HomeScreen extends StatelessWidget {
           Stack(
             children: [
               Container(
-                height: MediaQuery.of(context).size.height * 0.9,
-                width: MediaQuery.of(context).size.width * 0.45,
+                height: MediaQuery.of(context).size.height * 0.95,
+                width: MediaQuery.of(context).size.width * 0.475,
                 decoration: BoxDecoration(
-                  color: Colors.blueGrey[600],
+                  color: const Color.fromRGBO(127, 0, 255, 1),
                   borderRadius: BorderRadius.circular(20.0),
                 ),
                 alignment: Alignment.topCenter,
                 child: Column(
                   children: [
+                    FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: Text(
+                        ' ',
+                        style: TextStyle(
+                          fontFamily: (GoogleFonts.poppins()).fontFamily,
+                          color: Colors.black,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
                     FittedBox(
                       fit: BoxFit.fitWidth,
                       child: Text(
@@ -87,12 +94,15 @@ class HomeScreen extends StatelessWidget {
               ),
               Positioned(
                 bottom: MediaQuery.of(context).size.width * 0.0345,
-                left: MediaQuery.of(context).size.width * 0.01,
+                left: MediaQuery.of(context).size.width * 0.0225,
                 width: MediaQuery.of(context).size.width * 0.45 -
                     MediaQuery.of(context).size.width * 0.02,
                 child: ElevatedButton(
-                  onPressed: () => (Navigator.of(context)
-                      .push(createRoute(const colourReflexes()))),
+                  onPressed: () => (Navigator.of(context).push(
+                    createRoute(
+                      const colourReflexes(),
+                    ),
+                  )),
                   child: FittedBox(
                       fit: BoxFit.fitWidth,
                       child: Container(
@@ -119,15 +129,26 @@ class HomeScreen extends StatelessWidget {
           Stack(
             children: [
               Container(
-                height: MediaQuery.of(context).size.height * 0.9,
-                width: MediaQuery.of(context).size.width * 0.45,
+                height: MediaQuery.of(context).size.height * 0.95,
+                width: MediaQuery.of(context).size.width * 0.475,
                 alignment: Alignment.topCenter,
                 decoration: BoxDecoration(
-                  color: Colors.blueGrey[600],
+                  color: const Color.fromRGBO(127, 0, 255, 1),
                   borderRadius: BorderRadius.circular(20.0),
                 ),
                 child: Column(
                   children: [
+                    FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: Text(
+                        ' ',
+                        style: TextStyle(
+                          fontFamily: (GoogleFonts.poppins()).fontFamily,
+                          color: Colors.black,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
                     FittedBox(
                       fit: BoxFit.fill,
                       child: Text(
@@ -155,17 +176,20 @@ class HomeScreen extends StatelessWidget {
               ),
               Positioned(
                 bottom: MediaQuery.of(context).size.width * 0.0345,
-                left: MediaQuery.of(context).size.width * 0.01,
+                left: MediaQuery.of(context).size.width * 0.0225,
                 width: MediaQuery.of(context).size.width * 0.45 -
                     MediaQuery.of(context).size.width * 0.02,
                 child: ElevatedButton(
-                  onPressed: () => (Navigator.of(context)
-                      .push(createRoute(const textReflexes()))),
+                  onPressed: () => (Navigator.of(context).push(
+                    createRoute(
+                      const textReflexes(),
+                    ),
+                  )),
                   child: FittedBox(
                     fit: BoxFit.fill,
                     child: Container(
                       child: Text(
-                        "Colour Reflexes",
+                        "Text Reflexes",
                         style: TextStyle(
                           fontFamily: (GoogleFonts.poppins()).fontFamily,
                         ),
@@ -187,9 +211,9 @@ Route createRoute(Widget widget) {
     transitionDuration: const Duration(milliseconds: 2000),
     pageBuilder: (context, animation, secondaryAnimation) => widget,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(0.0, 1.0);
+      const begin = Offset(-1.0, 0.0);
       const end = Offset.zero;
-      const curve = Curves.bounceIn;
+      const curve = Curves.ease;
 
       var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
