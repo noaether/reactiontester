@@ -86,7 +86,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               Positioned(
-                bottom: MediaQuery.of(context).size.width * 0.0445,
+                bottom: MediaQuery.of(context).size.width * 0.0345,
                 left: MediaQuery.of(context).size.width * 0.01,
                 width: MediaQuery.of(context).size.width * 0.45 -
                     MediaQuery.of(context).size.width * 0.02,
@@ -96,7 +96,6 @@ class HomeScreen extends StatelessWidget {
                   child: FittedBox(
                       fit: BoxFit.fitWidth,
                       child: Container(
-                        color: Colors.cyan[800],
                         child: Text(
                           "Colour Reflexes",
                           style: TextStyle(
@@ -155,7 +154,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               Positioned(
-                bottom: MediaQuery.of(context).size.width * 0.0445,
+                bottom: MediaQuery.of(context).size.width * 0.0345,
                 left: MediaQuery.of(context).size.width * 0.01,
                 width: MediaQuery.of(context).size.width * 0.45 -
                     MediaQuery.of(context).size.width * 0.02,
@@ -165,7 +164,6 @@ class HomeScreen extends StatelessWidget {
                   child: FittedBox(
                     fit: BoxFit.fill,
                     child: Container(
-                      color: Colors.cyan[800],
                       child: Text(
                         "Colour Reflexes",
                         style: TextStyle(
