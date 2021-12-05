@@ -138,9 +138,9 @@ class colourReflexesState extends State<colourReflexes> {
         leading: BackButton(
             onPressed: () => {
                   Navigator.of(context).pushAndRemoveUntil(
-                      createRoute(HomeScreen()), (route) => false)
+                      createRoute(HomeCards()), (route) => false)
                 }),
-        title: Text('Colour Reflexes - Average time taken : $avgTimeTakenC ms'),
+        title: Text('Colour Matching - Average : $avgTimeTakenC ms'),
         backgroundColor: Colors.blue[700],
       ),
       // ignore: prefer_const_constructors

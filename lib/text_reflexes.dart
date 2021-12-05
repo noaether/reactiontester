@@ -151,9 +151,9 @@ class textReflexesState extends State<textReflexes> {
         leading: BackButton(
             onPressed: () => {
                   Navigator.of(context).pushAndRemoveUntil(
-                      createRoute(HomeScreen()), (route) => false)
+                      createRoute(HomeCards()), (route) => false)
                 }),
-        title: Text('Colour Reflexes - Average time taken : $avgTimeTakenT ms'),
+        title: Text('Font Matching - Average : $avgTimeTakenT ms'),
         backgroundColor: Colors.blue[700],
       ),
       // ignore: prefer_const_constructors
@@ -289,7 +289,7 @@ void wrongAnswer(BuildContext context) {
 }
 
 void goBack(BuildContext context) {
-  Navigator.of(context).push(createRoute(HomeScreen()));
+  Navigator.of(context).push(createRoute(HomeCards()));
 }
 
 Route createRoute(Widget widget) {
