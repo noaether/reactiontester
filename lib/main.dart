@@ -2,6 +2,9 @@
 
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+
 import 'colour_reflexes.dart';
 import 'text_reflexes.dart';
 
@@ -15,6 +18,10 @@ import 'dart:core';
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 void main() {
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('google_fonts/licenses.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
   runApp(const GameChoices());
 }
 
