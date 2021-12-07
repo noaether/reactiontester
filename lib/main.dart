@@ -1,10 +1,4 @@
-// ignore_for_file: camel_case_types
-
-import 'dart:math';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-
+// ignore_for_file: camel_case_types, avoid_print
 import 'colour_reflexes.dart';
 import 'text_reflexes.dart';
 
@@ -12,16 +6,17 @@ import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import 'dart:core';
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 void main() {
-  LicenseRegistry.addLicense(() async* {
+/*  LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/licenses.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
-  });
+  }); */
   runApp(const GameChoices());
 }
 
@@ -30,12 +25,12 @@ class GameChoices extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: HomeCards());
+    return const MaterialApp(home: HomeCards());
   }
 }
 
 class HomeCards extends StatefulWidget {
-  HomeCards({Key? key}) : super(key: key);
+  const HomeCards({Key? key}) : super(key: key);
 
   @override
   _HomeCardsState createState() => _HomeCardsState();
@@ -68,7 +63,7 @@ class _HomeCardsState extends State<HomeCards> {
                           .push(createRoute(const colourReflexes()));
                     },
                     child: IgnorePointer(
-                      child: Container(
+                      child: SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: Column(
                           mainAxisSize: MainAxisSize.max,
@@ -185,11 +180,11 @@ class _HomeCardsState extends State<HomeCards> {
                   InkWell(
                     // First page
                     onTap: () {
-                      Navigator.of(context)
-                          .push(createRoute(const textReflexes()));
+                      Navigator.of(context).pushAndRemoveUntil(
+                          createRoute(const textReflexes()), (route) => false);
                     },
                     child: IgnorePointer(
-                      child: Container(
+                      child: SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: Column(
                           mainAxisSize: MainAxisSize.max,
@@ -303,43 +298,35 @@ class _HomeCardsState extends State<HomeCards> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        InkWell(
-                          splashColor: Colors.blue.withAlpha(30),
-                          onTap: () {
-                            print('About Me interaction');
-                          },
-                          child: Container(
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            child: FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Text(
-                                "About this app",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: (GoogleFonts.lato()).fontFamily,
-                                  color: Colors.black,
-                                  fontSize: 40,
-                                ),
-                              ),
-                            ),
+                  InkWell(
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: () {
+                      showAboutDialog(
+                        context: context,
+                        applicationName: 'ReflexTester',
+                        applicationVersion: '1.2.0.1',
+                      );
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width - 10,
+                      child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: Text(
+                          "About this app",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: (GoogleFonts.lato()).fontFamily,
+                            color: Colors.black,
+                            fontSize: 40,
                           ),
-                        )
-                      ],
+                        ),
+                      ),
                     ),
                   ),
                   InkWell(
                     splashColor: Colors.blue.withAlpha(30),
-                    onTap: () {
-                      print('About Me interaction');
-                    },
+                    onTap: () {},
                     child: Container(
                       alignment: Alignment.center,
                       width: MediaQuery.of(context).size.width - 10,
@@ -357,6 +344,31 @@ class _HomeCardsState extends State<HomeCards> {
                       ),
                     ),
                   ),
+                  /* InkWell(
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: () {
+                      showAboutDialog(
+                          context: context,
+                          applicationName: 'ReflexTester',
+                          applicationVersion: '1.2.0.1');
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width - 10,
+                      child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: Text(
+                          "Licenses",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: (GoogleFonts.lato()).fontFamily,
+                            color: Colors.black,
+                            fontSize: 35,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ), */
                 ],
               ),
             ),

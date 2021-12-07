@@ -24,11 +24,13 @@ List<Text?> buttonFonts = [
 List<int> timeDiffText = [];
 List<int> avgTimeText = [0];
 
+int startTimeText = 0;
+int endTimeText = 0;
+
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 class textReflexes extends StatefulWidget {
   const textReflexes({Key? key}) : super(key: key);
-
   @override
   textReflexesState createState() => textReflexesState();
 }
@@ -131,8 +133,9 @@ class textReflexesState extends State<textReflexes> {
   int randomButton = Random().nextInt(3);
   @override
   Widget build(BuildContext context) {
-    int dateInMS = DateTime.now().millisecondsSinceEpoch;
-    timeDiffText.add(dateInMS);
+    timeDiffText.clear();
+    startTimeText = DateTime.now().millisecondsSinceEpoch;
+    timeDiffText.add(startTimeText);
     randomButton = Random().nextInt(3);
     if (randomText1 == randomText4 ||
         randomText1 == randomText5 ||
@@ -145,14 +148,23 @@ class textReflexesState extends State<textReflexes> {
     avgTimeTakenText = avgTimeTakenT;
     // ignore: avoid_print
     print("Correct button is : " + randomButton.toString());
+    int timeTakenText;
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
         leading: BackButton(
-            onPressed: () => {
-                  Navigator.of(context).pushAndRemoveUntil(
-                      createRoute(HomeCards()), (route) => false)
-                }),
+          onPressed: () => {
+            endTimeText = DateTime.now().millisecondsSinceEpoch,
+            timeDiffText.add(endTimeText),
+            timeTakenText = timeDiffText[1] - timeDiffText[0],
+            timeDiffText.clear(),
+            avgTimeText.add(timeTakenText),
+            endTimeText = 0,
+            timeTakenText = 0,
+            Navigator.of(context).pushAndRemoveUntil(
+                createRoute(const HomeCards()), (route) => false),
+          },
+        ),
         title: Text('Font Matching - Average : $avgTimeTakenT ms'),
         backgroundColor: Colors.blue[700],
       ),
@@ -232,15 +244,14 @@ class textBox extends StatelessWidget {
           children: [
             Container(
               child: FittedBox(
-                fit: BoxFit.fitWidth,
+                fit: BoxFit.fill,
                 child: Text(
-                  'The quick brown fox jumps over the lazy dog',
-                  softWrap: true,
+                  'The quick brown\r\nfox jumps over\r\nthe lazy dog',
                   style: TextStyle(
                     fontFamily: buttonFonts[0]!.style!.fontFamily,
-                    fontSize: 48,
-                    overflow: TextOverflow.clip,
+                    fontSize: 96,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
               alignment: Alignment.center,
@@ -257,8 +268,8 @@ class textBox extends StatelessWidget {
 void correctAnswer(BuildContext context) {
   double deviceHeight = MediaQuery.of(context).size.height;
 
-  int dateInMSAfterAnswer = DateTime.now().millisecondsSinceEpoch;
-  timeDiffText.add(dateInMSAfterAnswer);
+  endTimeText = DateTime.now().millisecondsSinceEpoch;
+  timeDiffText.add(endTimeText);
 
   int timeTakenText = timeDiffText[1] - timeDiffText[0];
   timeDiffText.clear();
@@ -289,7 +300,7 @@ void wrongAnswer(BuildContext context) {
 }
 
 void goBack(BuildContext context) {
-  Navigator.of(context).push(createRoute(HomeCards()));
+  Navigator.of(context).push(createRoute(const HomeCards()));
 }
 
 Route createRoute(Widget widget) {

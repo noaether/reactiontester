@@ -14,8 +14,6 @@ Color? randomColour6 = Colors.transparent;
 
 int avgTimeTakenColour = 0;
 
-int dateInMS = 0;
-
 List buttonColours = [
   randomColour1,
   randomColour4,
@@ -24,6 +22,9 @@ List buttonColours = [
 ];
 List<int> timeDiffColours = [];
 List<int> avgTimeColours = [0];
+
+int startTimeColour = 0;
+int endTimeColour = 0;
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -117,8 +118,8 @@ class colourReflexesState extends State<colourReflexes> {
 
   @override
   Widget build(BuildContext context) {
-    int dateInMS = DateTime.now().millisecondsSinceEpoch;
-    timeDiffColours.add(dateInMS);
+    int startTimeColour = DateTime.now().millisecondsSinceEpoch;
+    timeDiffColours.add(startTimeColour);
     randomButton = Random().nextInt(3);
     if (randomColour1 == randomColour4 ||
         randomColour1 == randomColour5 ||
@@ -132,13 +133,22 @@ class colourReflexesState extends State<colourReflexes> {
     avgTimeTakenColour = avgTimeTakenC;
     // ignore: avoid_print
     print("Correct button is : " + randomButton.toString());
+    int timeTakenColour;
+
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
         leading: BackButton(
             onPressed: () => {
+                  endTimeColour = DateTime.now().millisecondsSinceEpoch,
+                  timeDiffColours.add(endTimeColour),
+                  timeTakenColour = timeDiffColours[1] - timeDiffColours[0],
+                  timeDiffColours.clear(),
+                  avgTimeColours.add(timeTakenColour),
+                  endTimeColour = 0,
+                  timeTakenColour = 0,
                   Navigator.of(context).pushAndRemoveUntil(
-                      createRoute(HomeCards()), (route) => false)
+                      createRoute(const HomeCards()), (route) => false)
                 }),
         title: Text('Colour Matching - Average : $avgTimeTakenC ms'),
         backgroundColor: Colors.blue[700],
