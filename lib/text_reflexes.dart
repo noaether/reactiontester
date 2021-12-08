@@ -6,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:core';
 import 'dart:math';
 
+import 'package:flex_color_scheme/flex_color_scheme.dart';
+
 import 'package:reflex_tester/main.dart';
 
 Text? randomText1;
@@ -149,86 +151,90 @@ class textReflexesState extends State<textReflexes> {
     // ignore: avoid_print
     print("Correct button is : " + randomButton.toString());
     int timeTakenText;
-    return Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(
-        leading: BackButton(
-          onPressed: () => {
-            endTimeText = DateTime.now().millisecondsSinceEpoch,
-            timeDiffText.add(endTimeText),
-            timeTakenText = timeDiffText[1] - timeDiffText[0],
-            timeDiffText.clear(),
-            avgTimeText.add(timeTakenText),
-            endTimeText = 0,
-            timeTakenText = 0,
-            Navigator.of(context).pushAndRemoveUntil(
-                createRoute(const HomeCards()), (route) => false),
-          },
+    return MaterialApp(
+      theme: FlexColorScheme.light(scheme: FlexScheme.mandyRed).toTheme,
+      darkTheme: FlexColorScheme.dark(scheme: FlexScheme.hippieBlue).toTheme,
+      themeMode: ThemeMode.system,
+      home: Scaffold(
+        key: scaffoldKey,
+        appBar: AppBar(
+          leading: BackButton(
+            onPressed: () => {
+              endTimeText = DateTime.now().millisecondsSinceEpoch,
+              timeDiffText.add(endTimeText),
+              timeTakenText = timeDiffText[1] - timeDiffText[0],
+              timeDiffText.clear(),
+              avgTimeText.add(timeTakenText),
+              endTimeText = 0,
+              timeTakenText = 0,
+              Navigator.of(context).pushAndRemoveUntil(
+                  createRoute(const HomeCards()), (route) => false),
+            },
+          ),
+          title: Text('Font Matching - Average : $avgTimeTakenT ms'),
         ),
-        title: Text('Font Matching - Average : $avgTimeTakenT ms'),
-        backgroundColor: Colors.blue[700],
-      ),
-      // ignore: prefer_const_constructors
-      extendBodyBehindAppBar: true,
-      // ignore: avoid_unnecessary_containers, prefer_const_constructors
-      body: SafeArea(
-          // ignore: prefer_const_constructors
-          child: Container(
         // ignore: prefer_const_constructors
-        child: textBox(),
-        alignment: Alignment.center,
-      )),
-      floatingActionButton: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: <Widget>[
-          FloatingActionButton(
-            heroTag: 'bitch',
-            onPressed: () {
-              if (randomButton == 0) {
-                correctAnswer(context);
-                newFont();
-              } else {
-                wrongAnswer(context);
-              }
-            },
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            child: randomButton == 0 ? buttonFonts[0] : buttonFonts[1],
-          ), // First Button
+        extendBodyBehindAppBar: true,
+        // ignore: avoid_unnecessary_containers, prefer_const_constructors
+        body: SafeArea(
+            // ignore: prefer_const_constructors
+            child: Container(
+          // ignore: prefer_const_constructors
+          child: textBox(),
+          alignment: Alignment.center,
+        )),
+        floatingActionButton: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            FloatingActionButton(
+              heroTag: 'bitch',
+              onPressed: () {
+                if (randomButton == 0) {
+                  correctAnswer(context);
+                  newFont();
+                } else {
+                  wrongAnswer(context);
+                }
+              },
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              child: randomButton == 0 ? buttonFonts[0] : buttonFonts[1],
+            ), // First Button
 
-          FloatingActionButton(
-            heroTag: 'asshole',
-            onPressed: () {
-              if (randomButton == 1) {
-                correctAnswer(context);
-                newFont();
-              } else {
-                wrongAnswer(context);
-              }
-            },
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            child: randomButton == 1 ? buttonFonts[0] : buttonFonts[2],
-          ), // Second Button
+            FloatingActionButton(
+              heroTag: 'asshole',
+              onPressed: () {
+                if (randomButton == 1) {
+                  correctAnswer(context);
+                  newFont();
+                } else {
+                  wrongAnswer(context);
+                }
+              },
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              child: randomButton == 1 ? buttonFonts[0] : buttonFonts[2],
+            ), // Second Button
 
-          FloatingActionButton(
-            heroTag: 'colourblind',
-            onPressed: () {
-              if (randomButton == 2) {
-                correctAnswer(context);
-                newFont();
-              } else {
-                wrongAnswer(context);
-              }
-            },
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            child: randomButton == 2 ? buttonFonts[0] : buttonFonts[3],
-          ), // Third Button
-        ],
+            FloatingActionButton(
+              heroTag: 'colourblind',
+              onPressed: () {
+                if (randomButton == 2) {
+                  correctAnswer(context);
+                  newFont();
+                } else {
+                  wrongAnswer(context);
+                }
+              },
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              child: randomButton == 2 ? buttonFonts[0] : buttonFonts[3],
+            ), // Third Button
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

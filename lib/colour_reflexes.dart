@@ -1,8 +1,11 @@
 // ignore_for_file: camel_case_types
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:core';
 import 'dart:math';
+
+import 'package:reflex_tester/main.dart';
 
 import 'main.dart';
 
@@ -75,43 +78,43 @@ class colourReflexesState extends State<colourReflexes> {
 
   // Function to execute
   void newColour() {
-    setState(() {
-      buttonColours.clear();
-      randomColour1 = colorList[random.nextInt(colorList.length)];
-      randomColour4 = colorList[random.nextInt(colorList.length)];
-      randomColour5 = colorList[random.nextInt(colorList.length)];
-      randomColour6 = colorList[random.nextInt(colorList.length)];
-
-      while (randomColour1 == randomColour4) {
+    setState(
+      () {
+        buttonColours.clear();
+        randomColour1 = colorList[random.nextInt(colorList.length)];
         randomColour4 = colorList[random.nextInt(colorList.length)];
-      }
-      while (randomColour1 == randomColour5) {
         randomColour5 = colorList[random.nextInt(colorList.length)];
-      }
-      while (randomColour1 == randomColour6) {
         randomColour6 = colorList[random.nextInt(colorList.length)];
-      }
-      while (randomColour4 == randomColour5) {
-        randomColour5 = colorList[random.nextInt(colorList.length)];
-      }
-      while (randomColour4 == randomColour6) {
-        randomColour6 = colorList[random.nextInt(colorList.length)];
-      }
-      while (randomColour5 == randomColour6) {
-        randomColour6 = colorList[random.nextInt(colorList.length)];
-      }
 
-      if (randomColour1 != randomColour4 &&
-          randomColour4 != randomColour5 &&
-          randomColour5 != randomColour6) {
-        buttonColours.add(randomColour1);
-        buttonColours.add(randomColour4);
-        buttonColours.add(randomColour5);
-        buttonColours.add(randomColour6);
-      }
+        while (randomColour1 == randomColour4) {
+          randomColour4 = colorList[random.nextInt(colorList.length)];
+        }
+        while (randomColour1 == randomColour5) {
+          randomColour5 = colorList[random.nextInt(colorList.length)];
+        }
+        while (randomColour1 == randomColour6) {
+          randomColour6 = colorList[random.nextInt(colorList.length)];
+        }
+        while (randomColour4 == randomColour5) {
+          randomColour5 = colorList[random.nextInt(colorList.length)];
+        }
+        while (randomColour4 == randomColour6) {
+          randomColour6 = colorList[random.nextInt(colorList.length)];
+        }
+        while (randomColour5 == randomColour6) {
+          randomColour6 = colorList[random.nextInt(colorList.length)];
+        }
 
-      // ignore: avoidprint
-    });
+        if (randomColour1 != randomColour4 &&
+            randomColour4 != randomColour5 &&
+            randomColour5 != randomColour6) {
+          buttonColours.add(randomColour1);
+          buttonColours.add(randomColour4);
+          buttonColours.add(randomColour5);
+          buttonColours.add(randomColour6);
+        }
+      },
+    );
   }
 
   int randomButton = Random().nextInt(3);
@@ -135,82 +138,86 @@ class colourReflexesState extends State<colourReflexes> {
     print("Correct button is : " + randomButton.toString());
     int timeTakenColour;
 
-    return Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(
-        leading: BackButton(
-            onPressed: () => {
-                  endTimeColour = DateTime.now().millisecondsSinceEpoch,
-                  timeDiffColours.add(endTimeColour),
-                  timeTakenColour = timeDiffColours[1] - timeDiffColours[0],
-                  timeDiffColours.clear(),
-                  avgTimeColours.add(timeTakenColour),
-                  endTimeColour = 0,
-                  timeTakenColour = 0,
-                  Navigator.of(context).pushAndRemoveUntil(
-                      createRoute(const HomeCards()), (route) => false)
-                }),
-        title: Text('Colour Matching - Average : $avgTimeTakenC ms'),
-        backgroundColor: Colors.blue[700],
-      ),
-      // ignore: prefer_const_constructors
-      extendBodyBehindAppBar: true,
-      // ignore: avoid_unnecessary_containers, prefer_const_constructors
-      body: SafeArea(
+    return MaterialApp(
+      theme: FlexColorScheme.light(scheme: FlexScheme.mandyRed).toTheme,
+      darkTheme: FlexColorScheme.dark(scheme: FlexScheme.hippieBlue).toTheme,
+      themeMode: ThemeMode.system,
+      home: Scaffold(
+        key: scaffoldKey,
+        appBar: AppBar(
+          leading: BackButton(
+              onPressed: () => {
+                    endTimeColour = DateTime.now().millisecondsSinceEpoch,
+                    timeDiffColours.add(endTimeColour),
+                    timeTakenColour = timeDiffColours[1] - timeDiffColours[0],
+                    timeDiffColours.clear(),
+                    avgTimeColours.add(timeTakenColour),
+                    endTimeColour = 0,
+                    timeTakenColour = 0,
+                    Navigator.of(context).pushAndRemoveUntil(
+                        createRoute(const HomeCards()), (route) => false)
+                  }),
+          title: Text('Colour Matching - Average : $avgTimeTakenC ms'),
+        ),
         // ignore: prefer_const_constructors
-        child: colourBox(),
-      ),
-      floatingActionButton: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: <Widget>[
-          FloatingActionButton(
-            heroTag: 'bitch',
-            onPressed: () {
-              if (randomButton == 0) {
-                correctAnswer(context);
-                newColour();
-              } else {
-                wrongAnswer(context);
-              }
-            },
-            backgroundColor:
-                randomButton == 0 ? buttonColours[0] : buttonColours[1],
-            child: const Icon(Icons.add),
-          ), // First Button
+        extendBodyBehindAppBar: true,
+        // ignore: avoid_unnecessary_containers, prefer_const_constructors
+        body: SafeArea(
+          // ignore: prefer_const_constructors
+          child: colourBox(),
+        ),
+        floatingActionButton: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            FloatingActionButton(
+              heroTag: 'bitch',
+              onPressed: () {
+                if (randomButton == 0) {
+                  correctAnswer(context);
+                  newColour();
+                } else {
+                  wrongAnswer(context);
+                }
+              },
+              backgroundColor:
+                  randomButton == 0 ? buttonColours[0] : buttonColours[1],
+              child: const Icon(Icons.add),
+            ), // First Button
 
-          FloatingActionButton(
-            heroTag: 'asshole',
-            onPressed: () {
-              if (randomButton == 1) {
-                correctAnswer(context);
-                newColour();
-              } else {
-                wrongAnswer(context);
-              }
-            },
-            backgroundColor:
-                randomButton == 1 ? buttonColours[0] : buttonColours[2],
-            child: const Icon(Icons.add),
-          ), // Second Button
+            FloatingActionButton(
+              heroTag: 'asshole',
+              onPressed: () {
+                if (randomButton == 1) {
+                  correctAnswer(context);
+                  newColour();
+                } else {
+                  wrongAnswer(context);
+                }
+              },
+              backgroundColor:
+                  randomButton == 1 ? buttonColours[0] : buttonColours[2],
+              child: const Icon(Icons.add),
+            ), // Second Button
 
-          FloatingActionButton(
-            heroTag: 'colourblind',
-            onPressed: () {
-              if (randomButton == 2) {
-                correctAnswer(context);
-                newColour();
-              } else {
-                wrongAnswer(context);
-              }
-            },
-            backgroundColor:
-                randomButton == 2 ? buttonColours[0] : buttonColours[3],
-            child: const Icon(Icons.add),
-          ), // Third Button
-        ],
+            FloatingActionButton(
+              heroTag: 'colourblind',
+              onPressed: () {
+                if (randomButton == 2) {
+                  correctAnswer(context);
+                  newColour();
+                } else {
+                  wrongAnswer(context);
+                }
+              },
+              backgroundColor:
+                  randomButton == 2 ? buttonColours[0] : buttonColours[3],
+              child: const Icon(Icons.add),
+            ), // Third Button
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

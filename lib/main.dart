@@ -1,31 +1,50 @@
 // ignore_for_file: camel_case_types, avoid_print
+import 'package:flutter/services.dart';
+
 import 'colour_reflexes.dart';
 import 'text_reflexes.dart';
 
 import 'package:flutter/rendering.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 import 'dart:core';
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 void main() {
-/*  LicenseRegistry.addLicense(() async* {
-    final license = await rootBundle.loadString('google_fonts/licenses.txt');
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('google_fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
-  }); */
-  runApp(const GameChoices());
+  });
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('google_fonts/license9.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
+
+  runApp(materialHomePage());
 }
 
-class GameChoices extends StatelessWidget {
-  const GameChoices({Key? key}) : super(key: key);
+class materialHomePage extends StatefulWidget {
+  materialHomePage({Key? key}) : super(key: key);
 
   @override
+  _materialHomePageState createState() => _materialHomePageState();
+}
+
+class _materialHomePageState extends State<materialHomePage> {
+  @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: HomeCards());
+    return MaterialApp(
+      home: HomeCards(),
+      theme: FlexColorScheme.light(scheme: FlexScheme.mandyRed).toTheme,
+      darkTheme: FlexColorScheme.dark(scheme: FlexScheme.hippieBlue).toTheme,
+      themeMode: ThemeMode.system,
+    );
   }
 }
 
@@ -76,7 +95,6 @@ class _HomeCardsState extends State<HomeCards> {
                                 'Colour Matching',
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
-                                  color: Colors.black,
                                   fontSize: 40,
                                 ),
                               ),
@@ -89,7 +107,6 @@ class _HomeCardsState extends State<HomeCards> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
-                                  color: Colors.black,
                                   fontSize: 20,
                                 ),
                               ),
@@ -102,7 +119,6 @@ class _HomeCardsState extends State<HomeCards> {
                                 textAlign: TextAlign.right,
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
-                                  color: Colors.black,
                                   fontSize: 10,
                                 ),
                               ),
@@ -128,7 +144,6 @@ class _HomeCardsState extends State<HomeCards> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: (GoogleFonts.lato()).fontFamily,
-                              color: Colors.black,
                               fontSize: 40,
                             ),
                           ),
@@ -142,7 +157,6 @@ class _HomeCardsState extends State<HomeCards> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: (GoogleFonts.lato()).fontFamily,
-                              color: Colors.black,
                               fontSize: 25,
                             ),
                           ),
@@ -197,7 +211,6 @@ class _HomeCardsState extends State<HomeCards> {
                                 'Font Matching',
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
-                                  color: Colors.black,
                                   fontSize: 40,
                                 ),
                               ),
@@ -210,7 +223,6 @@ class _HomeCardsState extends State<HomeCards> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
-                                  color: Colors.black,
                                   fontSize: 20,
                                 ),
                               ),
@@ -223,7 +235,6 @@ class _HomeCardsState extends State<HomeCards> {
                                 textAlign: TextAlign.right,
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
-                                  color: Colors.black,
                                   fontSize: 10,
                                 ),
                               ),
@@ -249,7 +260,6 @@ class _HomeCardsState extends State<HomeCards> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: (GoogleFonts.lato()).fontFamily,
-                              color: Colors.black,
                               fontSize: 40,
                             ),
                           ),
@@ -263,7 +273,6 @@ class _HomeCardsState extends State<HomeCards> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: (GoogleFonts.lato()).fontFamily,
-                              color: Colors.black,
                               fontSize: 25,
                             ),
                           ),
@@ -304,7 +313,7 @@ class _HomeCardsState extends State<HomeCards> {
                       showAboutDialog(
                         context: context,
                         applicationName: 'ReflexTester',
-                        applicationVersion: '1.2.0.1',
+                        applicationVersion: '1.2.0.3',
                       );
                     },
                     child: Container(
@@ -317,7 +326,6 @@ class _HomeCardsState extends State<HomeCards> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: (GoogleFonts.lato()).fontFamily,
-                            color: Colors.black,
                             fontSize: 40,
                           ),
                         ),
@@ -337,7 +345,6 @@ class _HomeCardsState extends State<HomeCards> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: (GoogleFonts.lato()).fontFamily,
-                            color: Colors.black,
                             fontSize: 35,
                           ),
                         ),
