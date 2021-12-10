@@ -5,8 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'colour_reflexes.dart';
 import 'text_reflexes.dart';
 
-import 'package:flutter/rendering.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
@@ -36,7 +34,7 @@ class materialHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: const HomeCards(),
-      title: 'Reflex Tester',
+      title: 'ReactionTester',
       theme: FlexColorScheme.light(scheme: FlexScheme.mandyRed).toTheme,
       darkTheme: FlexColorScheme.dark(scheme: FlexScheme.hippieBlue).toTheme,
       themeMode: ThemeMode.system,
@@ -87,7 +85,7 @@ class _HomeCardsState extends State<HomeCards> {
                           children: [
                             FittedBox(
                               fit: BoxFit.fill,
-                              child: Text(
+                              child: SelectableText(
                                 'Colour Matching',
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -97,9 +95,8 @@ class _HomeCardsState extends State<HomeCards> {
                             ),
                             FittedBox(
                               fit: BoxFit.fill,
-                              child: Text(
+                              child: SelectableText(
                                 'How fast can you\r\nlink colours together ?',
-                                softWrap: true,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -109,9 +106,8 @@ class _HomeCardsState extends State<HomeCards> {
                             ),
                             Container(
                               alignment: Alignment.center,
-                              child: Text(
+                              child: SelectableText(
                                 'Psst. You can swipe to get more info ->',
-                                softWrap: true,
                                 textAlign: TextAlign.right,
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -134,9 +130,8 @@ class _HomeCardsState extends State<HomeCards> {
                         Container(
                           alignment: Alignment.center,
                           width: MediaQuery.of(context).size.width,
-                          child: Text(
+                          child: SelectableText(
                             'How do I play this game ?',
-                            softWrap: true,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -147,9 +142,8 @@ class _HomeCardsState extends State<HomeCards> {
                         Container(
                           alignment: Alignment.center,
                           width: MediaQuery.of(context).size.width,
-                          child: Text(
+                          child: SelectableText(
                             'You will be given one colour \r\n You will have three buttons to choose from \r\n Be quick though ! Your reaction time is measured',
-                            softWrap: true,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -203,7 +197,7 @@ class _HomeCardsState extends State<HomeCards> {
                           children: [
                             FittedBox(
                               fit: BoxFit.fill,
-                              child: Text(
+                              child: SelectableText(
                                 'Font Matching',
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -213,9 +207,8 @@ class _HomeCardsState extends State<HomeCards> {
                             ),
                             FittedBox(
                               fit: BoxFit.fill,
-                              child: Text(
+                              child: SelectableText(
                                 'How fast can you\r\nreunite fonts together ?',
-                                softWrap: true,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -225,9 +218,8 @@ class _HomeCardsState extends State<HomeCards> {
                             ),
                             Container(
                               alignment: Alignment.center,
-                              child: Text(
+                              child: SelectableText(
                                 'Psst. You can swipe to get more info ->',
-                                softWrap: true,
                                 textAlign: TextAlign.right,
                                 style: TextStyle(
                                   fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -250,9 +242,8 @@ class _HomeCardsState extends State<HomeCards> {
                         Container(
                           alignment: Alignment.center,
                           width: MediaQuery.of(context).size.width,
-                          child: Text(
+                          child: SelectableText(
                             'How do I play this game ?',
-                            softWrap: true,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -263,9 +254,8 @@ class _HomeCardsState extends State<HomeCards> {
                         Container(
                           alignment: Alignment.center,
                           width: MediaQuery.of(context).size.width,
-                          child: Text(
+                          child: SelectableText(
                             'You will be given one sentence \r\n You will have three buttons to choose from \r\n Be quick though ! Your reaction time is measured',
-                            softWrap: true,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -308,7 +298,7 @@ class _HomeCardsState extends State<HomeCards> {
                     onTap: () {
                       showAboutDialog(
                         context: context,
-                        applicationName: "Reflex Tester",
+                        applicationName: "ReactionTester",
                         applicationVersion: "1.2.1.0",
                       );
                     },
@@ -317,7 +307,7 @@ class _HomeCardsState extends State<HomeCards> {
                       width: MediaQuery.of(context).size.width - 10,
                       child: FittedBox(
                         fit: BoxFit.fitWidth,
-                        child: Text(
+                        child: SelectableText(
                           "About this app",
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -338,7 +328,7 @@ class _HomeCardsState extends State<HomeCards> {
                       width: MediaQuery.of(context).size.width - 10,
                       child: FittedBox(
                         fit: BoxFit.fitWidth,
-                        child: Text(
+                        child: SelectableText(
                           "About this app's developper",
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -349,31 +339,6 @@ class _HomeCardsState extends State<HomeCards> {
                       ),
                     ),
                   ),
-                  /* InkWell(
-                    splashColor: Colors.blue.withAlpha(30),
-                    onTap: () {
-                      showAboutDialog(
-                          context: context,
-                          applicationName: 'ReflexTester',
-                          applicationVersion: '1.2.0.1');
-                    },
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width - 10,
-                      child: FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child: Text(
-                          "Licenses",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: (GoogleFonts.lato()).fontFamily,
-                            color: Colors.black,
-                            fontSize: 35,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ), */
                 ],
               ),
             ),
@@ -382,11 +347,6 @@ class _HomeCardsState extends State<HomeCards> {
       ),
     );
   }
-}
-
-Future<AssetImage> loadImageAsset(
-    String folder, String assetname, String fileType) async {
-  return AssetImage('$folder/$assetname.$fileType');
 }
 
 Route createRoute(Widget widget) {

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'dart:core';
 import 'dart:math';
 
-import 'package:reflex_tester/main.dart';
+import 'package:ReactionTester/main.dart';
 
 import 'main.dart';
 
@@ -155,7 +155,7 @@ class colourReflexesState extends State<colourReflexes> {
                     endTimeColour = 0,
                     timeTakenColour = 0,
                     Navigator.of(context).pushAndRemoveUntil(
-                        createRoute(const HomeCards()), (route) => false)
+                        createRoute(const materialHomePage()), (route) => false)
                   }),
           title: Text('Colour Matching - Average : $avgTimeTakenC ms'),
         ),

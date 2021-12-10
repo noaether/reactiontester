@@ -92,10 +92,10 @@ BEGIN
             VALUE "CompanyName", "PocoyoDev" "\0"
             VALUE "FileDescription", "Test your reaction time while having fun" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "reflextester" "\0"
+            VALUE "InternalName", "ReactionTester" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2021 PocoyoDev All rights reserved." "\0"
-            VALUE "OriginalFilename", "reflextester.exe" "\0"
-            VALUE "ProductName", "reflextester" "\0"
+            VALUE "OriginalFilename", "ReactionTester.exe" "\0"
+            VALUE "ProductName", "ReactionTester" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

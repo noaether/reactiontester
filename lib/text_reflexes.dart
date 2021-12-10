@@ -8,7 +8,7 @@ import 'dart:math';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 
-import 'package:reflex_tester/main.dart';
+import 'package:ReactionTester/main.dart';
 
 Text? randomText1;
 Text? randomText4;
@@ -168,7 +168,7 @@ class textReflexesState extends State<textReflexes> {
               endTimeText = 0,
               timeTakenText = 0,
               Navigator.of(context).pushAndRemoveUntil(
-                  createRoute(const HomeCards()), (route) => false),
+                  createRoute(const materialHomePage()), (route) => false),
             },
           ),
           title: Text('Font Matching - Average : $avgTimeTakenT ms'),
