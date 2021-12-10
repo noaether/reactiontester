@@ -1,5 +1,6 @@
 // ignore_for_file: camel_case_types, avoid_print
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'colour_reflexes.dart';
 import 'text_reflexes.dart';
@@ -16,31 +17,26 @@ import 'dart:core';
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
-void main() {
+void main() async {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
   LicenseRegistry.addLicense(() async* {
-    final license = await rootBundle.loadString('google_fonts/license9.txt');
+    final license = await rootBundle.loadString('google_fonts/license.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
-
-  runApp(materialHomePage());
+  runApp(const materialHomePage());
 }
 
-class materialHomePage extends StatefulWidget {
-  materialHomePage({Key? key}) : super(key: key);
+class materialHomePage extends StatelessWidget {
+  const materialHomePage({Key? key}) : super(key: key);
 
-  @override
-  _materialHomePageState createState() => _materialHomePageState();
-}
-
-class _materialHomePageState extends State<materialHomePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomeCards(),
+      home: const HomeCards(),
+      title: 'Reflex Tester',
       theme: FlexColorScheme.light(scheme: FlexScheme.mandyRed).toTheme,
       darkTheme: FlexColorScheme.dark(scheme: FlexScheme.hippieBlue).toTheme,
       themeMode: ThemeMode.system,
@@ -312,8 +308,8 @@ class _HomeCardsState extends State<HomeCards> {
                     onTap: () {
                       showAboutDialog(
                         context: context,
-                        applicationName: 'ReflexTester',
-                        applicationVersion: '1.2.0.3',
+                        applicationName: "Reflex Tester",
+                        applicationVersion: "1.2.1.0",
                       );
                     },
                     child: Container(
@@ -334,7 +330,9 @@ class _HomeCardsState extends State<HomeCards> {
                   ),
                   InkWell(
                     splashColor: Colors.blue.withAlpha(30),
-                    onTap: () {},
+                    onTap: () {
+                      _launchURL();
+                    },
                     child: Container(
                       alignment: Alignment.center,
                       width: MediaQuery.of(context).size.width - 10,
@@ -408,4 +406,13 @@ Route createRoute(Widget widget) {
       );
     },
   );
+}
+
+_launchURL() async {
+  const url = 'http://pocoyo.rf.gd';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw "Unable to launch Internet Browser";
+  }
 }

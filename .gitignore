@@ -28,3 +28,5 @@ reflex_tester.7z
 .flutter-plugins-dependencies
 desktop.ini
 buttons.jsonc
+buildapps.bat
+output/installer.iss
