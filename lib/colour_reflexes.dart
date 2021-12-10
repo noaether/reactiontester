@@ -29,6 +29,8 @@ List<int> avgTimeColours = [0];
 int startTimeColour = 0;
 int endTimeColour = 0;
 
+bool isbw = false;
+
 final FlexColorScheme light = FlexColorScheme.light(scheme: FlexScheme.shark);
 final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
 
@@ -171,9 +173,59 @@ class colourReflexesState extends State<colourReflexes> {
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.monochrome_photos),
-              tooltip: 'Change colour space',
+              tooltip: 'Toggle b/w',
               onPressed: () {
-                null;
+                if (isbw == false) {
+                  colorList.clear();
+                  colorList.addAll(
+                    [
+                      Colors.grey[50],
+                      Colors.grey[100],
+                      Colors.grey[200],
+                      Colors.grey[300],
+                      Colors.grey[400],
+                      Colors.grey,
+                      Colors.grey[600],
+                      Colors.grey[700],
+                      Colors.grey[800],
+                      Colors.grey[850],
+                      Colors.grey[900],
+                    ],
+                  );
+                  bool isbw = true;
+                  newColour();
+                } else {
+                  colorList.clear();
+                  colorList.addAll(
+                    [
+                      Colors.yellow,
+                      Colors.teal,
+                      Colors.red,
+                      Colors.purple,
+                      Colors.pink,
+                      Colors.orange,
+                      Colors.lime,
+                      Colors.lightGreen,
+                      Colors.lightBlue[200],
+                      Colors.indigo,
+                      Colors.green,
+                      Colors.deepPurple,
+                      Colors.deepOrange,
+                      Colors.brown,
+                      Colors.blueGrey,
+                      Colors.blue,
+                      Colors.amber,
+                      Colors.black,
+                      const Color.fromARGB(
+                          255, 105, 105, 105), // Grey but hex is #696969
+                      const Color.fromARGB(
+                          255, 66, 4, 32), // Magenta but hex is #b00b69
+                      const Color.fromARGB(255, 176, 11, 105),
+                    ],
+                  );
+                  bool isbw = true;
+                  newColour();
+                }
               },
             ),
           ],
