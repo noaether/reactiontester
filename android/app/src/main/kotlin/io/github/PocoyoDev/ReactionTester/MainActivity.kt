@@ -1,4 +1,4 @@
-package com.example.reflex_tester
+package io.github.PocoyoDev.ReactionTester
 
 import io.flutter.embedding.android.FlutterActivity
 
