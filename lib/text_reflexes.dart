@@ -29,6 +29,12 @@ List<int> avgTimeText = [0];
 int startTimeText = 0;
 int endTimeText = 0;
 
+final FlexColorScheme light = FlexColorScheme.light(scheme: FlexScheme.shark);
+final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
+
+final ThemeData lightTheme = light.toTheme;
+final ThemeData darkTheme = dark.toTheme;
+
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 class textReflexes extends StatefulWidget {
@@ -152,12 +158,16 @@ class textReflexesState extends State<textReflexes> {
     print("Correct button is : " + randomButton.toString());
     int timeTakenText;
     return MaterialApp(
-      theme: FlexColorScheme.light(scheme: FlexScheme.mandyRed).toTheme,
-      darkTheme: FlexColorScheme.dark(scheme: FlexScheme.hippieBlue).toTheme,
+      theme: lightTheme,
+      darkTheme: darkTheme,
       themeMode: ThemeMode.system,
       home: Scaffold(
         key: scaffoldKey,
         appBar: AppBar(
+          backgroundColor:
+              MediaQuery.of(context).platformBrightness == Brightness.light
+                  ? FlexColor.sharkLightPrimary
+                  : FlexColor.brandBlueDarkPrimary,
           leading: BackButton(
             onPressed: () => {
               endTimeText = DateTime.now().millisecondsSinceEpoch,

@@ -15,6 +15,12 @@ import 'dart:core';
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
+final FlexColorScheme light = FlexColorScheme.light(scheme: FlexScheme.shark);
+final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
+
+final ThemeData lightTheme = light.toTheme;
+final ThemeData darkTheme = dark.toTheme;
+
 void main() async {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
@@ -35,8 +41,8 @@ class materialHomePage extends StatelessWidget {
     return MaterialApp(
       home: const HomeCards(),
       title: 'ReactionTester',
-      theme: FlexColorScheme.light(scheme: FlexScheme.mandyRed).toTheme,
-      darkTheme: FlexColorScheme.dark(scheme: FlexScheme.hippieBlue).toTheme,
+      theme: lightTheme,
+      darkTheme: darkTheme,
       themeMode: ThemeMode.system,
     );
   }
@@ -53,7 +59,13 @@ class _HomeCardsState extends State<HomeCards> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('ReactionTester'),
+        backgroundColor:
+            MediaQuery.of(context).platformBrightness == Brightness.light
+                ? FlexColor.sharkLightPrimary
+                : FlexColor.brandBlueDarkPrimary,
+      ),
       body: Column(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -72,8 +84,11 @@ class _HomeCardsState extends State<HomeCards> {
                   InkWell(
                     // First page
                     onTap: () {
-                      Navigator.of(context)
-                          .push(createRoute(const colourReflexes()));
+                      Navigator.of(context).push(
+                        createRoute(
+                          const colourReflexes(),
+                        ),
+                      );
                     },
                     child: IgnorePointer(
                       child: SizedBox(
@@ -307,7 +322,7 @@ class _HomeCardsState extends State<HomeCards> {
                       width: MediaQuery.of(context).size.width - 10,
                       child: FittedBox(
                         fit: BoxFit.fitWidth,
-                        child: SelectableText(
+                        child: Text(
                           "About this app",
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -328,7 +343,7 @@ class _HomeCardsState extends State<HomeCards> {
                       width: MediaQuery.of(context).size.width - 10,
                       child: FittedBox(
                         fit: BoxFit.fitWidth,
-                        child: SelectableText(
+                        child: Text(
                           "About this app's developper",
                           textAlign: TextAlign.center,
                           style: TextStyle(
