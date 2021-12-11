@@ -1,4 +1,5 @@
 // ignore_for_file: camel_case_types, avoid_print
+import 'package:ReactionTester/update.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -7,9 +8,11 @@ import 'text_reflexes.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:convert';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:http/http.dart' as http;
 
 import 'dart:core';
 
@@ -21,6 +24,10 @@ final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
 final ThemeData lightTheme = light.toTheme;
 final ThemeData darkTheme = dark.toTheme;
 
+String installedVersion = "1.2.1.3-2";
+
+String? webVersion;
+
 void main() async {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
@@ -30,6 +37,11 @@ void main() async {
     final license = await rootBundle.loadString('google_fonts/license.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
+  var url = Uri.parse(
+      'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version');
+  final response = await http.get(url, headers: {"Accept": "application/json"});
+  webVersion = response.body;
+
   runApp(const materialHomePage());
 }
 
@@ -56,6 +68,19 @@ class HomeCards extends StatefulWidget {
 }
 
 class _HomeCardsState extends State<HomeCards> {
+  static Route<Object?> _dialogBuilder(
+      BuildContext context, Object? arguments) {
+    return RawDialogRoute<void>(
+      pageBuilder: (
+        BuildContext context,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation,
+      ) {
+        return const updateApp();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -314,7 +339,7 @@ class _HomeCardsState extends State<HomeCards> {
                       showAboutDialog(
                         context: context,
                         applicationName: "ReactionTester",
-                        applicationVersion: "1.2.1.0",
+                        applicationVersion: installedVersion,
                       );
                     },
                     child: Container(
@@ -345,6 +370,43 @@ class _HomeCardsState extends State<HomeCards> {
                         fit: BoxFit.fitWidth,
                         child: Text(
                           "About this app's developper",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: (GoogleFonts.lato()).fontFamily,
+                            fontSize: 35,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: () {
+                      List<int> installedVersionList = [];
+                      installedVersionList
+                          .addAll(utf8.encode(installedVersion));
+                      List<int> webVersionList = [];
+                      webVersionList.addAll(utf8.encode(webVersion!));
+                      webVersionList.removeLast();
+                      print('Text 1 : $installedVersionList');
+                      print('Text 2 : $webVersionList');
+
+                      String webVersionText =
+                          utf8.decode(webVersionList).toString();
+                      String installedVersionText =
+                          utf8.decode(installedVersionList).toString();
+
+                      if (webVersionText != installedVersionText) {
+                        Navigator.of(context).restorablePush(_dialogBuilder);
+                      }
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width - 10,
+                      child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: Text(
+                          "Check for updates",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: (GoogleFonts.lato()).fontFamily,

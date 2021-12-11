@@ -29,8 +29,6 @@ List<int> avgTimeColours = [0];
 int startTimeColour = 0;
 int endTimeColour = 0;
 
-bool isbw = false;
-
 final FlexColorScheme light = FlexColorScheme.light(scheme: FlexScheme.shark);
 final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
 
@@ -126,6 +124,7 @@ class colourReflexesState extends State<colourReflexes> {
   }
 
   int randomButton = Random().nextInt(3);
+  bool isbw = false;
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +191,7 @@ class colourReflexesState extends State<colourReflexes> {
                       Colors.grey[900],
                     ],
                   );
-                  bool isbw = true;
+                  isbw = true;
                   newColour();
                 } else {
                   colorList.clear();
@@ -223,7 +222,7 @@ class colourReflexesState extends State<colourReflexes> {
                       const Color.fromARGB(255, 176, 11, 105),
                     ],
                   );
-                  bool isbw = true;
+                  isbw = false;
                   newColour();
                 }
               },
