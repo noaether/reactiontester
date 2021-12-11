@@ -37,12 +37,12 @@ void main() async {
     final license = await rootBundle.loadString('google_fonts/license.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
+  runApp(const materialHomePage());
+
   var url = Uri.parse(
       'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version');
   final response = await http.get(url, headers: {"Accept": "application/json"});
   webVersion = response.body;
-
-  runApp(const materialHomePage());
 }
 
 class materialHomePage extends StatelessWidget {
