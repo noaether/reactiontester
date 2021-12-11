@@ -1,4 +1,4 @@
-// ignore_for_file: camel_case_types, avoid_print
+// ignore_for_file: camel_case_types
 import 'package:ReactionTester/update.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,7 +24,7 @@ final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
 final ThemeData lightTheme = light.toTheme;
 final ThemeData darkTheme = dark.toTheme;
 
-String installedVersion = "1.2.1.3-2";
+String installedVersion = "1.2.2.0-2";
 
 String? webVersion;
 
@@ -388,8 +388,12 @@ class _HomeCardsState extends State<HomeCards> {
                       List<int> webVersionList = [];
                       webVersionList.addAll(utf8.encode(webVersion!));
                       webVersionList.removeLast();
-                      print('Text 1 : $installedVersionList');
-                      print('Text 2 : $webVersionList');
+                      if (kDebugMode) {
+                        print('Text 1 : $installedVersionList');
+                      }
+                      if (kDebugMode) {
+                        print('Text 2 : $webVersionList');
+                      }
 
                       String webVersionText =
                           utf8.decode(webVersionList).toString();
