@@ -24,7 +24,7 @@ final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
 final ThemeData lightTheme = light.toTheme;
 final ThemeData darkTheme = dark.toTheme;
 
-String installedVersion = "1.2.2.0-2";
+String installedVersion = "1.2.2.1-2";
 
 String? webVersion;
 
@@ -37,12 +37,12 @@ void main() async {
     final license = await rootBundle.loadString('google_fonts/license.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
-  runApp(const materialHomePage());
 
   var url = Uri.parse(
       'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version');
   final response = await http.get(url, headers: {"Accept": "application/json"});
   webVersion = response.body;
+  runApp(const materialHomePage());
 }
 
 class materialHomePage extends StatelessWidget {
@@ -51,7 +51,7 @@ class materialHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const HomeCards(),
+      home: HomeCards(),
       title: 'ReactionTester',
       theme: lightTheme,
       darkTheme: darkTheme,
@@ -83,14 +83,33 @@ class _HomeCardsState extends State<HomeCards> {
 
   @override
   Widget build(BuildContext context) {
+    List<int> installedVersionList = [];
+    installedVersionList.addAll(utf8.encode(installedVersion));
+    List<int> webVersionList = [];
+    webVersionList.addAll(utf8.encode(webVersion!));
+    webVersionList.removeLast();
+    String webVersionText = utf8.decode(webVersionList).toString();
+    String installedVersionText = utf8.decode(installedVersionList).toString();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ReactionTester'),
-        backgroundColor:
-            MediaQuery.of(context).platformBrightness == Brightness.light
-                ? FlexColor.sharkLightPrimary
-                : FlexColor.brandBlueDarkPrimary,
-      ),
+          title: const Text(
+            "ReactionTester",
+            textAlign: TextAlign.justify,
+          ),
+          backgroundColor:
+              MediaQuery.of(context).platformBrightness == Brightness.light
+                  ? FlexColor.sharkLightPrimary
+                  : FlexColor.brandBlueDarkPrimary,
+          leading: webVersionText != installedVersionText
+              ? IconButton(
+                  alignment: Alignment.center,
+                  tooltip: "Upgrade is available !",
+                  onPressed: () {
+                    Navigator.of(context).restorablePush(_dialogBuilder);
+                  },
+                  icon: const Icon(Icons.upgrade),
+                )
+              : null),
       body: Column(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -382,12 +401,6 @@ class _HomeCardsState extends State<HomeCards> {
                   InkWell(
                     splashColor: Colors.blue.withAlpha(30),
                     onTap: () {
-                      List<int> installedVersionList = [];
-                      installedVersionList
-                          .addAll(utf8.encode(installedVersion));
-                      List<int> webVersionList = [];
-                      webVersionList.addAll(utf8.encode(webVersion!));
-                      webVersionList.removeLast();
                       if (kDebugMode) {
                         print('Text 1 : $installedVersionList');
                       }

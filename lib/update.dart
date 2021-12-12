@@ -18,7 +18,6 @@ class updateApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.3,
         child: Card(
           child: Column(
             mainAxisSize: MainAxisSize.min,
