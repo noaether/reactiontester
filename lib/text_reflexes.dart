@@ -1,5 +1,6 @@
 // ignore_for_file: camel_case_types
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -7,6 +8,7 @@ import 'dart:core';
 import 'dart:math';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ReactionTester/main.dart';
 
@@ -157,6 +159,7 @@ class textReflexesState extends State<textReflexes> {
     // ignore: avoid_print
     print("Correct button is : " + randomButton.toString());
     int timeTakenText;
+    int avgTimeTakenToAdd;
     return MaterialApp(
       theme: lightTheme,
       darkTheme: darkTheme,
@@ -175,6 +178,8 @@ class textReflexesState extends State<textReflexes> {
               timeTakenText = timeDiffText[1] - timeDiffText[0],
               timeDiffText.clear(),
               avgTimeText.add(timeTakenText),
+              avgTimeTakenToAdd = avgTimeTakenText,
+              _saveTextData(avgTimeTakenToAdd),
               endTimeText = 0,
               timeTakenText = 0,
               Navigator.of(context).pushAndRemoveUntil(
@@ -335,4 +340,12 @@ Route createRoute(Widget widget) {
       );
     },
   );
+}
+
+_saveTextData(int avgTimeToAdd) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setInt('att', avgTimeToAdd);
+  if (kDebugMode) {
+    print('Average time : ${prefs.getInt('att')}');
+  }
 }

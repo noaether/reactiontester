@@ -1,5 +1,8 @@
 // ignore_for_file: camel_case_types
+import 'dart:io';
+
 import 'package:ReactionTester/update.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -13,6 +16,7 @@ import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dart:core';
 
@@ -25,8 +29,10 @@ final ThemeData lightTheme = light.toTheme;
 final ThemeData darkTheme = dark.toTheme;
 
 String installedVersion = "1.2.2.1-2";
-
 String? webVersion;
+
+int atc = 0;
+int att = 0;
 
 void main() async {
   LicenseRegistry.addLicense(() async* {
@@ -42,6 +48,11 @@ void main() async {
       'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version');
   final response = await http.get(url, headers: {"Accept": "application/json"});
   webVersion = response.body;
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  atc = prefs.getInt('atc') ?? 0;
+  att = prefs.getInt('att') ?? 0;
+
   runApp(const materialHomePage());
 }
 
@@ -51,7 +62,7 @@ class materialHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomeCards(),
+      home: const HomeCards(),
       title: 'ReactionTester',
       theme: lightTheme,
       darkTheme: darkTheme,
@@ -81,8 +92,20 @@ class _HomeCardsState extends State<HomeCards> {
     );
   }
 
+  void _getDataColour() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    atc = prefs.getInt('atc') ?? 0;
+  }
+
+  void _getDataText() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    att = prefs.getInt('att') ?? 0;
+  }
+
   @override
   Widget build(BuildContext context) {
+    _getDataColour();
+    _getDataText();
     List<int> installedVersionList = [];
     installedVersionList.addAll(utf8.encode(installedVersion));
     List<int> webVersionList = [];
@@ -215,12 +238,46 @@ class _HomeCardsState extends State<HomeCards> {
                   ),
                   Container(
                     alignment: Alignment.center,
-                    width: MediaQuery.of(context).size.width - 10,
-                    height: MediaQuery.of(context).size.width * 0.47760,
-                    child: Image(
-                      image: const AssetImage('thumbnails/crflxthb.png'),
-                      width: MediaQuery.of(context).size.width - 50,
-                      height: MediaQuery.of(context).size.width * 0.47760,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.width,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                            child: atc == 0
+                                ? Text(
+                                    'You haven\'t played this game yet!',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontFamily:
+                                          (GoogleFonts.lato()).fontFamily,
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                    ),
+                                  )
+                                : Text(
+                                    'Average time taken: $atc ms',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontFamily:
+                                          (GoogleFonts.lato()).fontFamily,
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Image(
+                            image: const AssetImage('thumbnails/crflxthb.png'),
+                            width: MediaQuery.of(context).size.width - 100,
+                            height: (MediaQuery.of(context).size.width - 100) *
+                                0.47760,
+                          ),
+                        ),
+                      ],
                     ),
                   )
                 ],
@@ -327,12 +384,46 @@ class _HomeCardsState extends State<HomeCards> {
                   ),
                   Container(
                     alignment: Alignment.center,
-                    width: MediaQuery.of(context).size.width - 10,
-                    height: MediaQuery.of(context).size.width * 0.47760,
-                    child: Image(
-                      image: const AssetImage('thumbnails/trflxthb.png'),
-                      width: MediaQuery.of(context).size.width - 50,
-                      height: MediaQuery.of(context).size.width * 0.47760,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.width,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                            child: att == 0
+                                ? Text(
+                                    'You haven\'t played this game yet!',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontFamily:
+                                          (GoogleFonts.lato()).fontFamily,
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                    ),
+                                  )
+                                : Text(
+                                    'Average time taken: $att ms',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontFamily:
+                                          (GoogleFonts.lato()).fontFamily,
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Image(
+                            image: const AssetImage('thumbnails/trflxthb.png'),
+                            width: MediaQuery.of(context).size.width - 100,
+                            height: (MediaQuery.of(context).size.width - 100) *
+                                0.47760,
+                          ),
+                        ),
+                      ],
                     ),
                   )
                 ],
@@ -467,6 +558,18 @@ _launchURL() async {
   if (await canLaunch(url)) {
     await launch(url);
   } else {
-    throw "Unable to launch Internet Browser";
+    throw "Unable to launch Internet Browser on device ${_getId()} ";
+  }
+}
+
+Future<String?> _getId() async {
+  var deviceInfo = DeviceInfoPlugin();
+  if (Platform.isIOS) {
+    // import 'dart:io'
+    var iosDeviceInfo = await deviceInfo.iosInfo;
+    return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+  } else {
+    var androidDeviceInfo = await deviceInfo.androidInfo;
+    return androidDeviceInfo.androidId; // unique ID on Android
   }
 }

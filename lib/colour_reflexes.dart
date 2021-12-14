@@ -1,11 +1,13 @@
 // ignore_for_file: camel_case_types
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:core';
 import 'dart:math';
 
 import 'package:ReactionTester/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'main.dart';
 
@@ -163,6 +165,7 @@ class colourReflexesState extends State<colourReflexes> {
               timeTakenColour = timeDiffColours[1] - timeDiffColours[0],
               timeDiffColours.clear(),
               avgTimeColours.add(timeTakenColour),
+              _saveColourData(avgTimeTakenColour),
               endTimeColour = 0,
               timeTakenColour = 0,
               Navigator.of(context).pushAndRemoveUntil(
@@ -360,4 +363,12 @@ Route createRoute(Widget widget) {
       );
     },
   );
+}
+
+_saveColourData(int avgTimeToAdd) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setInt('atc', avgTimeToAdd);
+  if (kDebugMode) {
+    print('Average time : ${prefs.getInt('atc')}');
+  }
 }
