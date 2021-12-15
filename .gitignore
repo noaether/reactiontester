@@ -31,3 +31,4 @@ buttons.jsonc
 buildapps.bat
 output/installer.iss
 output/ReactionTester.exe
+lib/firebase_options.dart

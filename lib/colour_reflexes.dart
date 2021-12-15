@@ -1,5 +1,9 @@
 // ignore_for_file: camel_case_types
+import 'package:ReactionTester/text_reflexes.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -7,9 +11,10 @@ import 'dart:core';
 import 'dart:math';
 
 import 'package:ReactionTester/main.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'main.dart';
+
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 Color? randomColour1 = Colors.transparent;
 
@@ -121,6 +126,7 @@ class colourReflexesState extends State<colourReflexes> {
           buttonColours.add(randomColour5);
           buttonColours.add(randomColour6);
         }
+        _newColourGenerated(FirebaseAnalytics.instance);
       },
     );
   }
@@ -143,8 +149,9 @@ class colourReflexesState extends State<colourReflexes> {
                 avgTimeColours.length)
             .ceil();
     avgTimeTakenColour = avgTimeTakenC;
-    // ignore: avoid_print
-    print("Correct button is : " + randomButton.toString());
+    if (kDebugMode) {
+      print("Correct button is : " + randomButton.toString());
+    }
     int timeTakenColour;
 
     return MaterialApp(
@@ -160,6 +167,7 @@ class colourReflexesState extends State<colourReflexes> {
                   : FlexColor.brandBlueDarkPrimary,
           leading: BackButton(
             onPressed: () => {
+              _closeColourAnalytics(FirebaseAnalytics.instance),
               endTimeColour = DateTime.now().millisecondsSinceEpoch,
               timeDiffColours.add(endTimeColour),
               timeTakenColour = timeDiffColours[1] - timeDiffColours[0],
@@ -178,6 +186,7 @@ class colourReflexesState extends State<colourReflexes> {
               tooltip: 'Toggle b/w',
               onPressed: () {
                 if (isbw == false) {
+                  _blackAndWhiteOn(FirebaseAnalytics.instance);
                   colorList.clear();
                   colorList.addAll(
                     [
@@ -192,11 +201,13 @@ class colourReflexesState extends State<colourReflexes> {
                       Colors.grey[800],
                       Colors.grey[850],
                       Colors.grey[900],
+                      Colors.black,
                     ],
                   );
                   isbw = true;
                   newColour();
                 } else {
+                  _blackAndWhiteOff(FirebaseAnalytics.instance);
                   colorList.clear();
                   colorList.addAll(
                     [
@@ -248,45 +259,54 @@ class colourReflexesState extends State<colourReflexes> {
               heroTag: 'bitch',
               onPressed: () {
                 if (randomButton == 0) {
-                  correctAnswer(context);
+                  _correctAnswer(context);
                   newColour();
                 } else {
-                  wrongAnswer(context);
+                  _wrongAnswer(context);
                 }
               },
               backgroundColor:
                   randomButton == 0 ? buttonColours[0] : buttonColours[1],
-              child: const Icon(Icons.add),
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
             ), // First Button
 
             FloatingActionButton(
               heroTag: 'asshole',
               onPressed: () {
                 if (randomButton == 1) {
-                  correctAnswer(context);
+                  _correctAnswer(context);
                   newColour();
                 } else {
-                  wrongAnswer(context);
+                  _wrongAnswer(context);
                 }
               },
               backgroundColor:
                   randomButton == 1 ? buttonColours[0] : buttonColours[2],
-              child: const Icon(Icons.add),
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
             ), // Second Button
 
             FloatingActionButton(
               heroTag: 'colourblind',
               onPressed: () {
                 if (randomButton == 2) {
-                  correctAnswer(context);
+                  _correctAnswer(context);
                   newColour();
                 } else {
-                  wrongAnswer(context);
+                  _wrongAnswer(context);
                 }
               },
               backgroundColor:
                   randomButton == 2 ? buttonColours[0] : buttonColours[3],
-              child: const Icon(Icons.add),
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
             ), // Third Button
           ],
         ),
@@ -316,7 +336,8 @@ class colourBox extends StatelessWidget {
   }
 }
 
-void correctAnswer(BuildContext context) {
+void _correctAnswer(BuildContext context) {
+  correctAns(FirebaseAnalytics.instance);
   double deviceHeight = MediaQuery.of(context).size.height;
 
   int dateInMSAfterAnswer = DateTime.now().millisecondsSinceEpoch;
@@ -335,7 +356,8 @@ void correctAnswer(BuildContext context) {
   timeDiffColours.clear();
 }
 
-void wrongAnswer(BuildContext context) {
+void _wrongAnswer(BuildContext context) {
+  wrongAns(FirebaseAnalytics.instance);
   double deviceHeight = MediaQuery.of(context).size.height;
   // ignore: deprecated_member_use
   scaffoldKey.currentState!.hideCurrentSnackBar();
@@ -371,4 +393,28 @@ _saveColourData(int avgTimeToAdd) async {
   if (kDebugMode) {
     print('Average time : ${prefs.getInt('atc')}');
   }
+}
+
+_closeColourAnalytics(FirebaseAnalytics analytics) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'close_colour',
+  );
+}
+
+_blackAndWhiteOn(FirebaseAnalytics analytics) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'toggle_bw_on',
+  );
+}
+
+_blackAndWhiteOff(FirebaseAnalytics analytics) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'toggle_bw_off',
+  );
+}
+
+_newColourGenerated(FirebaseAnalytics analytics) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'new_colour',
+  );
 }

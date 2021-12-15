@@ -3,11 +3,13 @@ import 'dart:io';
 
 import 'package:ReactionTester/update.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'colour_reflexes.dart';
 import 'text_reflexes.dart';
+import 'firebase_options.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +19,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'dart:core';
 
@@ -31,8 +34,8 @@ final ThemeData darkTheme = dark.toTheme;
 String installedVersion = "1.2.2.1-2";
 String? webVersion;
 
-int atc = 0;
-int att = 0;
+int? atc;
+int? att;
 
 void main() async {
   LicenseRegistry.addLicense(() async* {
@@ -49,9 +52,11 @@ void main() async {
   final response = await http.get(url, headers: {"Accept": "application/json"});
   webVersion = response.body;
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  atc = prefs.getInt('atc') ?? 0;
-  att = prefs.getInt('att') ?? 0;
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  _openAppAnalytics(FirebaseAnalytics.instance);
 
   runApp(const materialHomePage());
 }
@@ -106,6 +111,7 @@ class _HomeCardsState extends State<HomeCards> {
   Widget build(BuildContext context) {
     _getDataColour();
     _getDataText();
+    getData();
     List<int> installedVersionList = [];
     installedVersionList.addAll(utf8.encode(installedVersion));
     List<int> webVersionList = [];
@@ -151,11 +157,12 @@ class _HomeCardsState extends State<HomeCards> {
                   InkWell(
                     // First page
                     onTap: () {
-                      Navigator.of(context).push(
-                        createRoute(
-                          const colourReflexes(),
-                        ),
-                      );
+                      _openColourAnalytics(FirebaseAnalytics.instance);
+                      Navigator.of(context).pushAndRemoveUntil(
+                          createRoute(
+                            const colourReflexes(),
+                          ),
+                          (route) => false);
                     },
                     child: IgnorePointer(
                       child: SizedBox(
@@ -300,8 +307,12 @@ class _HomeCardsState extends State<HomeCards> {
                   InkWell(
                     // First page
                     onTap: () {
+                      _openTextAnalytics(FirebaseAnalytics.instance);
                       Navigator.of(context).pushAndRemoveUntil(
-                          createRoute(const textReflexes()), (route) => false);
+                          createRoute(
+                            const textReflexes(),
+                          ),
+                          (route) => false);
                     },
                     child: IgnorePointer(
                       child: SizedBox(
@@ -571,5 +582,41 @@ Future<String?> _getId() async {
   } else {
     var androidDeviceInfo = await deviceInfo.androidInfo;
     return androidDeviceInfo.androidId; // unique ID on Android
+  }
+}
+
+_openAppAnalytics(FirebaseAnalytics analytics) async {
+  await analytics.logAppOpen();
+}
+
+_openColourAnalytics(FirebaseAnalytics analytics) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'open_colour',
+  );
+}
+
+_openTextAnalytics(FirebaseAnalytics analytics) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'open_text',
+  );
+}
+
+correctAns(FirebaseAnalytics analytics) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'correct_ans',
+  );
+}
+
+wrongAns(FirebaseAnalytics analytics) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'wrong_ans',
+  );
+}
+
+getData() async {
+  if (atc == null && att == null) {
+    SharedPreferences? prefs = await SharedPreferences.getInstance();
+    atc = prefs.getInt('atc') ?? 0;
+    att = prefs.getInt('att') ?? 0;
   }
 }

@@ -1,5 +1,6 @@
 // ignore_for_file: camel_case_types
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,6 +12,7 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ReactionTester/main.dart';
+import 'firebase_options.dart';
 
 Text? randomText1;
 Text? randomText4;
@@ -101,43 +103,43 @@ class textReflexesState extends State<textReflexes> {
 
   // Function to execute
   void newFont() {
-    setState(() {
-      buttonFonts.clear();
-      randomText1 = textList[random.nextInt(textList.length)];
-      randomText4 = textList[random.nextInt(textList.length)];
-      randomText5 = textList[random.nextInt(textList.length)];
-      randomText6 = textList[random.nextInt(textList.length)];
-
-      while (randomText1 == randomText4) {
+    setState(
+      () {
+        buttonFonts.clear();
+        randomText1 = textList[random.nextInt(textList.length)];
         randomText4 = textList[random.nextInt(textList.length)];
-      }
-      while (randomText1 == randomText5) {
         randomText5 = textList[random.nextInt(textList.length)];
-      }
-      while (randomText1 == randomText6) {
         randomText6 = textList[random.nextInt(textList.length)];
-      }
-      while (randomText4 == randomText5) {
-        randomText5 = textList[random.nextInt(textList.length)];
-      }
-      while (randomText4 == randomText6) {
-        randomText6 = textList[random.nextInt(textList.length)];
-      }
-      while (randomText5 == randomText6) {
-        randomText6 = textList[random.nextInt(textList.length)];
-      }
 
-      if (randomText1 != randomText4 &&
-          randomText4 != randomText5 &&
-          randomText5 != randomText6) {
-        buttonFonts.add(randomText1);
-        buttonFonts.add(randomText4);
-        buttonFonts.add(randomText5);
-        buttonFonts.add(randomText6);
-      }
+        while (randomText1 == randomText4) {
+          randomText4 = textList[random.nextInt(textList.length)];
+        }
+        while (randomText1 == randomText5) {
+          randomText5 = textList[random.nextInt(textList.length)];
+        }
+        while (randomText1 == randomText6) {
+          randomText6 = textList[random.nextInt(textList.length)];
+        }
+        while (randomText4 == randomText5) {
+          randomText5 = textList[random.nextInt(textList.length)];
+        }
+        while (randomText4 == randomText6) {
+          randomText6 = textList[random.nextInt(textList.length)];
+        }
+        while (randomText5 == randomText6) {
+          randomText6 = textList[random.nextInt(textList.length)];
+        }
 
-      // ignore: avoidprint
-    });
+        if (randomText1 != randomText4 &&
+            randomText4 != randomText5 &&
+            randomText5 != randomText6) {
+          buttonFonts.add(randomText1);
+          buttonFonts.add(randomText4);
+          buttonFonts.add(randomText5);
+          buttonFonts.add(randomText6);
+        }
+      },
+    );
   }
 
   int randomButton = Random().nextInt(3);
@@ -156,8 +158,9 @@ class textReflexesState extends State<textReflexes> {
         (avgTimeText.map((m) => m).reduce((a, b) => a + b) / avgTimeText.length)
             .ceil();
     avgTimeTakenText = avgTimeTakenT;
-    // ignore: avoid_print
-    print("Correct button is : " + randomButton.toString());
+    if (kDebugMode) {
+      print("Correct button is : " + randomButton.toString());
+    }
     int timeTakenText;
     int avgTimeTakenToAdd;
     return MaterialApp(
@@ -173,6 +176,7 @@ class textReflexesState extends State<textReflexes> {
                   : FlexColor.brandBlueDarkPrimary,
           leading: BackButton(
             onPressed: () => {
+              _closeTextAnalytics(FirebaseAnalytics.instance),
               endTimeText = DateTime.now().millisecondsSinceEpoch,
               timeDiffText.add(endTimeText),
               timeTakenText = timeDiffText[1] - timeDiffText[0],
@@ -206,10 +210,10 @@ class textReflexesState extends State<textReflexes> {
               heroTag: 'bitch',
               onPressed: () {
                 if (randomButton == 0) {
-                  correctAnswer(context);
+                  _correctAnswer(context);
                   newFont();
                 } else {
-                  wrongAnswer(context);
+                  _wrongAnswer(context);
                 }
               },
               backgroundColor: Colors.blue,
@@ -221,10 +225,10 @@ class textReflexesState extends State<textReflexes> {
               heroTag: 'asshole',
               onPressed: () {
                 if (randomButton == 1) {
-                  correctAnswer(context);
+                  _correctAnswer(context);
                   newFont();
                 } else {
-                  wrongAnswer(context);
+                  _wrongAnswer(context);
                 }
               },
               backgroundColor: Colors.blue,
@@ -236,10 +240,10 @@ class textReflexesState extends State<textReflexes> {
               heroTag: 'colourblind',
               onPressed: () {
                 if (randomButton == 2) {
-                  correctAnswer(context);
+                  _correctAnswer(context);
                   newFont();
                 } else {
-                  wrongAnswer(context);
+                  _wrongAnswer(context);
                 }
               },
               backgroundColor: Colors.blue,
@@ -286,7 +290,8 @@ class textBox extends StatelessWidget {
   }
 }
 
-void correctAnswer(BuildContext context) {
+void _correctAnswer(BuildContext context) {
+  correctAns(FirebaseAnalytics.instance);
   double deviceHeight = MediaQuery.of(context).size.height;
 
   endTimeText = DateTime.now().millisecondsSinceEpoch;
@@ -308,7 +313,8 @@ void correctAnswer(BuildContext context) {
   timeDiffText.clear();
 }
 
-void wrongAnswer(BuildContext context) {
+void _wrongAnswer(BuildContext context) {
+  wrongAns(FirebaseAnalytics.instance);
   double deviceHeight = MediaQuery.of(context).size.height;
   // ignore: deprecated_member_use
   scaffoldKey.currentState!.hideCurrentSnackBar();
@@ -348,4 +354,16 @@ _saveTextData(int avgTimeToAdd) async {
   if (kDebugMode) {
     print('Average time : ${prefs.getInt('att')}');
   }
+}
+
+_closeTextAnalytics(FirebaseAnalytics analytics) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'text_close',
+  );
+}
+
+_newTextGenerated(FirebaseAnalytics analytics) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'new_text',
+  );
 }
