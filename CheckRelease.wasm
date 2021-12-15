@@ -1,8 +1,9 @@
 - Change version in pubspec
-- Change version in AndroidManifest.xml
+- Change version in build.gradle
 - Change version in Runner.rc
 - Change version in main.dart
 - Change version in version
+-- Commit and push changes
 
 - Correct problems
 - Open INNO

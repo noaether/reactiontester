@@ -31,7 +31,7 @@ final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
 final ThemeData lightTheme = light.toTheme;
 final ThemeData darkTheme = dark.toTheme;
 
-String installedVersion = "1.2.2.1-2";
+String installedVersion = "1.2.2.2-2";
 String? webVersion;
 
 int? atc;
