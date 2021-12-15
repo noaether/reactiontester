@@ -3,10 +3,10 @@
 - Change version in Runner.rc
 - Change version in main.dart
 - Change version in version
--- Commit and push changes
+-- Commit changes
 
 - Correct problems
-- Open INNO
+-- Commit changes
 
 - Compile Windows
 - Rename Output File to ReactionTester

@@ -12,7 +12,6 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ReactionTester/main.dart';
-import 'firebase_options.dart';
 
 Text? randomText1;
 Text? randomText4;
@@ -138,6 +137,7 @@ class textReflexesState extends State<textReflexes> {
           buttonFonts.add(randomText5);
           buttonFonts.add(randomText6);
         }
+        _newTextGenerated(FirebaseAnalytics.instance);
       },
     );
   }

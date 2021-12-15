@@ -1,5 +1,4 @@
 // ignore_for_file: camel_case_types
-import 'package:ReactionTester/text_reflexes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,9 +11,6 @@ import 'dart:math';
 
 import 'package:ReactionTester/main.dart';
 import 'main.dart';
-
-import 'firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 Color? randomColour1 = Colors.transparent;
 
