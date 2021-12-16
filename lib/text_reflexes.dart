@@ -1,5 +1,7 @@
 // ignore_for_file: camel_case_types
 
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -137,7 +139,7 @@ class textReflexesState extends State<textReflexes> {
           buttonFonts.add(randomText5);
           buttonFonts.add(randomText6);
         }
-        _newTextGenerated(FirebaseAnalytics.instance);
+        _newTextGenerated();
       },
     );
   }
@@ -176,7 +178,7 @@ class textReflexesState extends State<textReflexes> {
                   : FlexColor.brandBlueDarkPrimary,
           leading: BackButton(
             onPressed: () => {
-              _closeTextAnalytics(FirebaseAnalytics.instance),
+              _closeTextAnalytics(),
               endTimeText = DateTime.now().millisecondsSinceEpoch,
               timeDiffText.add(endTimeText),
               timeTakenText = timeDiffText[1] - timeDiffText[0],
@@ -291,7 +293,7 @@ class textBox extends StatelessWidget {
 }
 
 void _correctAnswer(BuildContext context) {
-  correctAns(FirebaseAnalytics.instance);
+  correctAns();
   double deviceHeight = MediaQuery.of(context).size.height;
 
   endTimeText = DateTime.now().millisecondsSinceEpoch;
@@ -314,7 +316,7 @@ void _correctAnswer(BuildContext context) {
 }
 
 void _wrongAnswer(BuildContext context) {
-  wrongAns(FirebaseAnalytics.instance);
+  wrongAns();
   double deviceHeight = MediaQuery.of(context).size.height;
   // ignore: deprecated_member_use
   scaffoldKey.currentState!.hideCurrentSnackBar();
@@ -356,14 +358,26 @@ _saveTextData(int avgTimeToAdd) async {
   }
 }
 
-_closeTextAnalytics(FirebaseAnalytics analytics) async {
-  await FirebaseAnalytics.instance.logEvent(
-    name: 'text_close',
-  );
+_closeTextAnalytics() async {
+  if (Platform.isAndroid == false && kIsWeb == false) {
+    if (kDebugMode) {
+      print("Device is Desktop, can't send analytics");
+    }
+  } else {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'text_close',
+    );
+  }
 }
 
-_newTextGenerated(FirebaseAnalytics analytics) async {
-  await FirebaseAnalytics.instance.logEvent(
-    name: 'new_text',
-  );
+_newTextGenerated() async {
+  if (Platform.isAndroid == false && kIsWeb == false) {
+    if (kDebugMode) {
+      print("Device is Desktop, can't send analytics");
+    }
+  } else {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'new_text',
+    );
+  }
 }

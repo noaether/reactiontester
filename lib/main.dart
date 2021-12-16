@@ -18,6 +18,8 @@ import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:http/http.dart' as http;
+
+// Storing Data
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -52,11 +54,13 @@ void main() async {
   final response = await http.get(url, headers: {"Accept": "application/json"});
   webVersion = response.body;
 
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  _openAppAnalytics(FirebaseAnalytics.instance);
+  if (Platform.isAndroid || kIsWeb) {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    _openAppAnalytics();
+  }
 
   runApp(const materialHomePage());
 }
@@ -157,7 +161,7 @@ class _HomeCardsState extends State<HomeCards> {
                   InkWell(
                     // First page
                     onTap: () {
-                      _openColourAnalytics(FirebaseAnalytics.instance);
+                      _openColourAnalytics();
                       Navigator.of(context).pushAndRemoveUntil(
                           createRoute(
                             const colourReflexes(),
@@ -307,7 +311,7 @@ class _HomeCardsState extends State<HomeCards> {
                   InkWell(
                     // First page
                     onTap: () {
-                      _openTextAnalytics(FirebaseAnalytics.instance);
+                      _openTextAnalytics();
                       Navigator.of(context).pushAndRemoveUntil(
                           createRoute(
                             const textReflexes(),
@@ -585,32 +589,62 @@ Future<String?> _getId() async {
   }
 }
 
-_openAppAnalytics(FirebaseAnalytics analytics) async {
-  await analytics.logAppOpen();
+_openAppAnalytics() async {
+  if (Platform.isAndroid == false && kIsWeb == false) {
+    if (kDebugMode) {
+      print("Device is Desktop, can't send analytics");
+    } else {
+      await FirebaseAnalytics.instance.logAppOpen();
+    }
+  }
 }
 
-_openColourAnalytics(FirebaseAnalytics analytics) async {
-  await FirebaseAnalytics.instance.logEvent(
-    name: 'open_colour',
-  );
+_openColourAnalytics() async {
+  if (Platform.isAndroid == false && kIsWeb == false) {
+    if (kDebugMode) {
+      print("Device is Desktop, can't send analytics");
+    } else {
+      await FirebaseAnalytics.instance.logEvent(
+        name: 'open_colour',
+      );
+    }
+  }
 }
 
-_openTextAnalytics(FirebaseAnalytics analytics) async {
-  await FirebaseAnalytics.instance.logEvent(
-    name: 'open_text',
-  );
+_openTextAnalytics() async {
+  if (Platform.isAndroid == false && kIsWeb == false) {
+    if (kDebugMode) {
+      print("Device is Desktop, can't send analytics");
+    }
+  } else {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'open_text',
+    );
+  }
 }
 
-correctAns(FirebaseAnalytics analytics) async {
-  await FirebaseAnalytics.instance.logEvent(
-    name: 'correct_ans',
-  );
+correctAns() async {
+  if (Platform.isAndroid == false && kIsWeb == false) {
+    if (kDebugMode) {
+      print("Device is Desktop, can't send analytics");
+    }
+  } else {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'correct_ans',
+    );
+  }
 }
 
-wrongAns(FirebaseAnalytics analytics) async {
-  await FirebaseAnalytics.instance.logEvent(
-    name: 'wrong_ans',
-  );
+wrongAns() async {
+  if (Platform.isAndroid == false && kIsWeb == false) {
+    if (kDebugMode) {
+      print("Device is Desktop, can't send analytics");
+    }
+  } else {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'wrong_ans',
+    );
+  }
 }
 
 getData() async {

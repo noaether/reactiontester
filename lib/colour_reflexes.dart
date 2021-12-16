@@ -1,4 +1,6 @@
 // ignore_for_file: camel_case_types
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -122,7 +124,7 @@ class colourReflexesState extends State<colourReflexes> {
           buttonColours.add(randomColour5);
           buttonColours.add(randomColour6);
         }
-        _newColourGenerated(FirebaseAnalytics.instance);
+        _newColourGenerated();
       },
     );
   }
@@ -163,7 +165,7 @@ class colourReflexesState extends State<colourReflexes> {
                   : FlexColor.brandBlueDarkPrimary,
           leading: BackButton(
             onPressed: () => {
-              _closeColourAnalytics(FirebaseAnalytics.instance),
+              _closeColourAnalytics(),
               endTimeColour = DateTime.now().millisecondsSinceEpoch,
               timeDiffColours.add(endTimeColour),
               timeTakenColour = timeDiffColours[1] - timeDiffColours[0],
@@ -182,7 +184,7 @@ class colourReflexesState extends State<colourReflexes> {
               tooltip: 'Toggle b/w',
               onPressed: () {
                 if (isbw == false) {
-                  _blackAndWhiteOn(FirebaseAnalytics.instance);
+                  _blackAndWhiteOn();
                   colorList.clear();
                   colorList.addAll(
                     [
@@ -203,7 +205,7 @@ class colourReflexesState extends State<colourReflexes> {
                   isbw = true;
                   newColour();
                 } else {
-                  _blackAndWhiteOff(FirebaseAnalytics.instance);
+                  _blackAndWhiteOff();
                   colorList.clear();
                   colorList.addAll(
                     [
@@ -333,7 +335,7 @@ class colourBox extends StatelessWidget {
 }
 
 void _correctAnswer(BuildContext context) {
-  correctAns(FirebaseAnalytics.instance);
+  correctAns();
   double deviceHeight = MediaQuery.of(context).size.height;
 
   int dateInMSAfterAnswer = DateTime.now().millisecondsSinceEpoch;
@@ -353,7 +355,7 @@ void _correctAnswer(BuildContext context) {
 }
 
 void _wrongAnswer(BuildContext context) {
-  wrongAns(FirebaseAnalytics.instance);
+  wrongAns();
   double deviceHeight = MediaQuery.of(context).size.height;
   // ignore: deprecated_member_use
   scaffoldKey.currentState!.hideCurrentSnackBar();
@@ -391,26 +393,51 @@ _saveColourData(int avgTimeToAdd) async {
   }
 }
 
-_closeColourAnalytics(FirebaseAnalytics analytics) async {
-  await FirebaseAnalytics.instance.logEvent(
-    name: 'close_colour',
-  );
+_closeColourAnalytics() async {
+  if (Platform.isAndroid == false && kIsWeb == false) {
+    if (kDebugMode) {
+      print("Device is Desktop, can't send analytics");
+    }
+  } else {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'close_colour',
+    );
+  }
 }
 
-_blackAndWhiteOn(FirebaseAnalytics analytics) async {
-  await FirebaseAnalytics.instance.logEvent(
-    name: 'toggle_bw_on',
-  );
+_blackAndWhiteOn() async {
+  if (Platform.isAndroid == false && kIsWeb == false) {
+    if (kDebugMode) {
+      print("Device is Desktop, can't send analytics");
+    }
+  } else {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'toggle_bw_on',
+    );
+  }
 }
 
-_blackAndWhiteOff(FirebaseAnalytics analytics) async {
-  await FirebaseAnalytics.instance.logEvent(
-    name: 'toggle_bw_off',
-  );
+_blackAndWhiteOff() async {
+  if (Platform.isAndroid == false && kIsWeb == false) {
+    if (kDebugMode) {
+      print("Device is Desktop, can't send analytics");
+    }
+  }
+  {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'toggle_bw_off',
+    );
+  }
 }
 
-_newColourGenerated(FirebaseAnalytics analytics) async {
-  await FirebaseAnalytics.instance.logEvent(
-    name: 'new_colour',
-  );
+_newColourGenerated() async {
+  if (Platform.isAndroid == false && kIsWeb == false) {
+    if (kDebugMode) {
+      print("Device is Desktop, can't send analytics");
+    }
+  } else {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'new_colour',
+    );
+  }
 }
