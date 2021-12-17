@@ -124,6 +124,7 @@ class _HomeCardsState extends State<HomeCards> {
     String webVersionText = utf8.decode(webVersionList).toString();
     String installedVersionText = utf8.decode(installedVersionList).toString();
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
           title: const Text(
             "ReactionTester",
