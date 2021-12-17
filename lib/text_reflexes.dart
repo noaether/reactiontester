@@ -13,7 +13,7 @@ import 'dart:math';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:ReactionTester/main.dart';
+import 'package:reactiontester/main.dart';
 
 Text? randomText1;
 Text? randomText4;

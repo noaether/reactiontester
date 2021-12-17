@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'dart:core';
 import 'dart:math';
 
-import 'package:ReactionTester/main.dart';
+import 'package:reactiontester/main.dart';
 import 'main.dart';
 
 Color? randomColour1 = Colors.transparent;

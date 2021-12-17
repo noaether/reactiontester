@@ -1,7 +1,7 @@
 // ignore_for_file: camel_case_types
 import 'dart:io';
 
-import 'package:ReactionTester/update.dart';
+import 'package:reactiontester/update.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/services.dart';

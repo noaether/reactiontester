@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.15)
-project(ReactionTester LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.14)
+project(reactiontester LANGUAGES CXX)
 
-set(BINARY_NAME "ReactionTester")
+set(BINARY_NAME "reactiontester")
 
 cmake_policy(SET CMP0063 NEW)
 

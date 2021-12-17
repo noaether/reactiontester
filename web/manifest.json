@@ -1,11 +1,11 @@
 {
-    "name": "ReactionTester",
-    "short_name": "ReactionTester",
+    "name": "reactiontester",
+    "short_name": "reactiontester",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": ":)",
+    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
