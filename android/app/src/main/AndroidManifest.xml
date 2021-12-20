@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.PocoyoDev.reactiontester">
    <application
-        android:label="reactiontester"
+        android:label="ReactionTester"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -394,7 +394,8 @@ _saveColourData(int avgTimeToAdd) async {
 }
 
 _closeColourAnalytics() async {
-  if (Platform.isAndroid == false && kIsWeb == false) {
+  if ((Platform.isAndroid == false && kIsWeb == false) ||
+      willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -406,7 +407,8 @@ _closeColourAnalytics() async {
 }
 
 _blackAndWhiteOn() async {
-  if (Platform.isAndroid == false && kIsWeb == false) {
+  if ((Platform.isAndroid == false && kIsWeb == false) ||
+      willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -418,7 +420,8 @@ _blackAndWhiteOn() async {
 }
 
 _blackAndWhiteOff() async {
-  if (Platform.isAndroid == false && kIsWeb == false) {
+  if ((Platform.isAndroid == false && kIsWeb == false) ||
+      willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -431,7 +434,8 @@ _blackAndWhiteOff() async {
 }
 
 _newColourGenerated() async {
-  if (Platform.isAndroid == false && kIsWeb == false) {
+  if ((Platform.isAndroid == false && kIsWeb == false) ||
+      willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }

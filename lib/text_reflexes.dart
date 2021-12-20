@@ -359,7 +359,8 @@ _saveTextData(int avgTimeToAdd) async {
 }
 
 _closeTextAnalytics() async {
-  if (Platform.isAndroid == false && kIsWeb == false) {
+  if ((Platform.isAndroid == false && kIsWeb == false) ||
+      willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -371,7 +372,8 @@ _closeTextAnalytics() async {
 }
 
 _newTextGenerated() async {
-  if (Platform.isAndroid == false && kIsWeb == false) {
+  if ((Platform.isAndroid == false && kIsWeb == false) ||
+      willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
