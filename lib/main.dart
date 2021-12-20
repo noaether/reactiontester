@@ -1,9 +1,12 @@
 // ignore_for_file: camel_case_types
 
-// Intern files
+// Internal files
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'colour_reflexes.dart';
 import 'text_reflexes.dart';
 import 'update.dart';
+import 'data_collection.dart';
 import 'firebase_options.dart';
 
 // Flutter
@@ -19,11 +22,9 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 // Analytics
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 // Storing Data Internally
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 // Reading/Opening Data Externally
@@ -33,9 +34,9 @@ import 'package:url_launcher/url_launcher.dart';
 // Core
 import 'dart:core';
 
-// Variables
-final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+// Variables
 final FlexColorScheme light = FlexColorScheme.light(scheme: FlexScheme.shark);
 final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
 
@@ -63,28 +64,33 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  FirebaseFirestore.instance.settings = const Settings(
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED, persistenceEnabled: true);
+
   var connectivityResult = await (Connectivity().checkConnectivity());
   if (connectivityResult == ConnectivityResult.none) {
+    //
+    // NETWORK : NO CONNECTION FOUND
+    //
     willInteract = false;
-    // No connectivity found
+    await FirebaseFirestore.instance.disableNetwork();
     if (kDebugMode) {
       print("No connectivity found; Cannot verify version nor send analytics");
     }
   } else {
-    // Connectivity found; Check if data or other
-    if (connectivityResult == ConnectivityResult.mobile) {
-      //
-      // MOBILE NETWORK
-      //
+    //
+    // NETWORK : WIFI/ETHERNET/MOBILE
+    //
+    if ((Platform.isAndroid == false && kIsWeb == false)) {
       willInteract = false;
       if (kDebugMode) {
-        print(
-            "Mobile connectivity found; Will not verify version nor send analytics");
+        print("Device is Desktop, can't send analytics");
       }
     } else {
-      //
-      // WIFI/ETHERNET NETWORK
-      //
       willInteract = true;
       if (kDebugMode) {
         print(
@@ -95,10 +101,9 @@ void main() async {
       final response =
           await http.get(url, headers: {"Accept": "application/json"});
       webVersion = response.body;
+      openAppAnalytics();
     }
   }
-
-  _openAppAnalytics();
   int endTime = DateTime.now().millisecondsSinceEpoch;
   int loadTime = endTime - startTime;
 
@@ -144,25 +149,14 @@ class _HomeCardsState extends State<HomeCards> {
     );
   }
 
-  void _getDataColour() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    atc = prefs.getInt('atc') ?? 0;
-  }
-
-  void _getDataText() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    att = prefs.getInt('att') ?? 0;
-  }
-
   @override
   Widget build(BuildContext context) {
-    _getDataColour();
-    _getDataText();
-    getData();
     if (webVersion != null) {
       //
       // ONLINE
       //
+      getDataColourOnline();
+      getDataTextOnline();
       List<int> installedVersionList = [];
       installedVersionList.addAll(utf8.encode(installedVersion));
       List<int> webVersionList = [];
@@ -172,7 +166,7 @@ class _HomeCardsState extends State<HomeCards> {
       String installedVersionText =
           utf8.decode(installedVersionList).toString();
       return Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         appBar: AppBar(
             title: const Text(
               "ReactionTester",
@@ -210,7 +204,7 @@ class _HomeCardsState extends State<HomeCards> {
                     InkWell(
                       // First page
                       onTap: () {
-                        _openColourAnalytics();
+                        openColourAnalytics();
                         Navigator.of(context).push(createRoute(
                           const colourReflexes(),
                         ));
@@ -360,7 +354,7 @@ class _HomeCardsState extends State<HomeCards> {
                     InkWell(
                       // First page
                       onTap: () {
-                        _openTextAnalytics();
+                        openTextAnalytics();
                         Navigator.of(context).push(createRoute(
                           const textReflexes(),
                         ));
@@ -599,8 +593,10 @@ class _HomeCardsState extends State<HomeCards> {
       //
       // OFFLINE
       //
+      getDataColourOffline();
+      getDataTextOffline();
       return Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         appBar: AppBar(
           title: const Text(
             "ReactionTester",
@@ -629,7 +625,7 @@ class _HomeCardsState extends State<HomeCards> {
                     InkWell(
                       // First page
                       onTap: () {
-                        _openColourAnalytics();
+                        openColourAnalytics();
                         Navigator.of(context).push(createRoute(
                           const colourReflexes(),
                         ));
@@ -779,7 +775,7 @@ class _HomeCardsState extends State<HomeCards> {
                     InkWell(
                       // First page
                       onTap: () {
-                        _openTextAnalytics();
+                        openTextAnalytics();
                         Navigator.of(context).push(createRoute(
                           const textReflexes(),
                         ));
@@ -1021,76 +1017,4 @@ Future<String?> _getId() async {
     var androidDeviceInfo = await deviceInfo.androidInfo;
     return androidDeviceInfo.androidId; // unique ID on Android
   }
-}
-
-_openAppAnalytics() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
-    if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
-    } else {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-      await FirebaseAnalytics.instance.logAppOpen();
-    }
-  }
-}
-
-_openColourAnalytics() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
-    if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
-    } else {
-      await FirebaseAnalytics.instance.logEvent(
-        name: 'open_colour',
-      );
-    }
-  }
-}
-
-_openTextAnalytics() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
-    if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
-    }
-  } else {
-    await FirebaseAnalytics.instance.logEvent(
-      name: 'open_text',
-    );
-  }
-}
-
-correctAns() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
-    if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
-    }
-  } else {
-    await FirebaseAnalytics.instance.logEvent(
-      name: 'correct_ans',
-    );
-  }
-}
-
-wrongAns() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
-    if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
-    }
-  } else {
-    await FirebaseAnalytics.instance.logEvent(
-      name: 'wrong_ans',
-    );
-  }
-}
-
-getData() async {
-  SharedPreferences? prefs = await SharedPreferences.getInstance();
-  atc = prefs.getInt('atc');
-  att = prefs.getInt('att');
 }

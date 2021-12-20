@@ -1,9 +1,6 @@
 // ignore_for_file: camel_case_types
-import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +9,7 @@ import 'dart:core';
 import 'dart:math';
 
 import 'package:reactiontester/main.dart';
-import 'main.dart';
+import 'package:reactiontester/data_collection.dart';
 
 Color? randomColour1 = Colors.transparent;
 
@@ -40,7 +37,7 @@ final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
 final ThemeData lightTheme = light.toTheme;
 final ThemeData darkTheme = dark.toTheme;
 
-final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
 class colourReflexes extends StatefulWidget {
   const colourReflexes({Key? key}) : super(key: key);
@@ -124,7 +121,7 @@ class colourReflexesState extends State<colourReflexes> {
           buttonColours.add(randomColour5);
           buttonColours.add(randomColour6);
         }
-        _newColourGenerated();
+        newColourGenerated();
       },
     );
   }
@@ -157,7 +154,7 @@ class colourReflexesState extends State<colourReflexes> {
       darkTheme: darkTheme,
       themeMode: ThemeMode.system,
       home: Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         appBar: AppBar(
           backgroundColor:
               MediaQuery.of(context).platformBrightness == Brightness.light
@@ -165,13 +162,14 @@ class colourReflexesState extends State<colourReflexes> {
                   : FlexColor.brandBlueDarkPrimary,
           leading: BackButton(
             onPressed: () => {
-              _closeColourAnalytics(),
+              closeColourAnalytics(),
               endTimeColour = DateTime.now().millisecondsSinceEpoch,
               timeDiffColours.add(endTimeColour),
               timeTakenColour = timeDiffColours[1] - timeDiffColours[0],
               timeDiffColours.clear(),
               avgTimeColours.add(timeTakenColour),
-              _saveColourData(avgTimeTakenColour),
+              saveColourData(avgTimeTakenColour),
+              saveDataColour(avgTimeTakenColour, isbw),
               endTimeColour = 0,
               timeTakenColour = 0,
               Navigator.of(context).pushAndRemoveUntil(
@@ -184,7 +182,7 @@ class colourReflexesState extends State<colourReflexes> {
               tooltip: 'Toggle b/w',
               onPressed: () {
                 if (isbw == false) {
-                  _blackAndWhiteOn();
+                  blackAndWhiteOn();
                   colorList.clear();
                   colorList.addAll(
                     [
@@ -205,7 +203,7 @@ class colourReflexesState extends State<colourReflexes> {
                   isbw = true;
                   newColour();
                 } else {
-                  _blackAndWhiteOff();
+                  blackAndWhiteOff();
                   colorList.clear();
                   colorList.addAll(
                     [
@@ -344,9 +342,9 @@ void _correctAnswer(BuildContext context) {
   int timeTaken = timeDiffColours[1] - timeDiffColours[0];
   avgTimeColours.add(timeTaken);
   // ignore: deprecated_member_use
-  scaffoldKey.currentState!.hideCurrentSnackBar();
+  _scaffoldKey.currentState!.hideCurrentSnackBar();
   // ignore: deprecated_member_use
-  scaffoldKey.currentState!.showSnackBar(SnackBar(
+  _scaffoldKey.currentState!.showSnackBar(SnackBar(
     elevation: deviceHeight / 2, // Doesnt work, bc why not ?
     duration: const Duration(milliseconds: 1069),
     content: Text('Right Answer ! It took you : $timeTaken ms'),
@@ -358,9 +356,9 @@ void _wrongAnswer(BuildContext context) {
   wrongAns();
   double deviceHeight = MediaQuery.of(context).size.height;
   // ignore: deprecated_member_use
-  scaffoldKey.currentState!.hideCurrentSnackBar();
+  _scaffoldKey.currentState!.hideCurrentSnackBar();
   // ignore: deprecated_member_use
-  scaffoldKey.currentState!.showSnackBar(SnackBar(
+  _scaffoldKey.currentState!.showSnackBar(SnackBar(
     duration: const Duration(milliseconds: 1069),
     elevation: deviceHeight / 2, // Doesnt work, bc why not ?
     content: const Text('Wrong Answer !'),
@@ -383,65 +381,4 @@ Route createRoute(Widget widget) {
       );
     },
   );
-}
-
-_saveColourData(int avgTimeToAdd) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setInt('atc', avgTimeToAdd);
-  if (kDebugMode) {
-    print('Average time : ${prefs.getInt('atc')}');
-  }
-}
-
-_closeColourAnalytics() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
-    if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
-    }
-  } else {
-    await FirebaseAnalytics.instance.logEvent(
-      name: 'close_colour',
-    );
-  }
-}
-
-_blackAndWhiteOn() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
-    if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
-    }
-  } else {
-    await FirebaseAnalytics.instance.logEvent(
-      name: 'toggle_bw_on',
-    );
-  }
-}
-
-_blackAndWhiteOff() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
-    if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
-    }
-  }
-  {
-    await FirebaseAnalytics.instance.logEvent(
-      name: 'toggle_bw_off',
-    );
-  }
-}
-
-_newColourGenerated() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
-    if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
-    }
-  } else {
-    await FirebaseAnalytics.instance.logEvent(
-      name: 'new_colour',
-    );
-  }
 }

@@ -1,8 +1,6 @@
 // ignore_for_file: camel_case_types
 
-import 'dart:io';
-
-import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,9 +9,9 @@ import 'dart:core';
 import 'dart:math';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:reactiontester/main.dart';
+import 'package:reactiontester/data_collection.dart';
 
 Text? randomText1;
 Text? randomText4;
@@ -40,7 +38,7 @@ final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
 final ThemeData lightTheme = light.toTheme;
 final ThemeData darkTheme = dark.toTheme;
 
-final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
 class textReflexes extends StatefulWidget {
   const textReflexes({Key? key}) : super(key: key);
@@ -49,6 +47,9 @@ class textReflexes extends StatefulWidget {
 }
 
 class textReflexesState extends State<textReflexes> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
+
   late double deviceWidth;
   late double deviceHeight;
   // Variables that might be affected
@@ -139,7 +140,7 @@ class textReflexesState extends State<textReflexes> {
           buttonFonts.add(randomText5);
           buttonFonts.add(randomText6);
         }
-        _newTextGenerated();
+        newTextGenerated();
       },
     );
   }
@@ -170,7 +171,7 @@ class textReflexesState extends State<textReflexes> {
       darkTheme: darkTheme,
       themeMode: ThemeMode.system,
       home: Scaffold(
-        key: scaffoldKey,
+        key: _scaffoldKey,
         appBar: AppBar(
           backgroundColor:
               MediaQuery.of(context).platformBrightness == Brightness.light
@@ -178,14 +179,14 @@ class textReflexesState extends State<textReflexes> {
                   : FlexColor.brandBlueDarkPrimary,
           leading: BackButton(
             onPressed: () => {
-              _closeTextAnalytics(),
+              closeTextAnalytics(),
               endTimeText = DateTime.now().millisecondsSinceEpoch,
               timeDiffText.add(endTimeText),
               timeTakenText = timeDiffText[1] - timeDiffText[0],
               timeDiffText.clear(),
               avgTimeText.add(timeTakenText),
               avgTimeTakenToAdd = avgTimeTakenText,
-              _saveTextData(avgTimeTakenToAdd),
+              saveTextData(avgTimeTakenToAdd),
               endTimeText = 0,
               timeTakenText = 0,
               Navigator.of(context).pushAndRemoveUntil(
@@ -303,9 +304,9 @@ void _correctAnswer(BuildContext context) {
   timeDiffText.clear();
   avgTimeText.add(timeTakenText);
   // ignore: deprecated_member_use
-  scaffoldKey.currentState!.hideCurrentSnackBar();
+  _scaffoldKey.currentState!.hideCurrentSnackBar();
   // ignore: deprecated_member_use
-  scaffoldKey.currentState!.showSnackBar(
+  _scaffoldKey.currentState!.showSnackBar(
     SnackBar(
       elevation: deviceHeight / 2, // Doesnt work, bc why not ?
       duration: const Duration(milliseconds: 1069),
@@ -319,9 +320,9 @@ void _wrongAnswer(BuildContext context) {
   wrongAns();
   double deviceHeight = MediaQuery.of(context).size.height;
   // ignore: deprecated_member_use
-  scaffoldKey.currentState!.hideCurrentSnackBar();
+  _scaffoldKey.currentState!.hideCurrentSnackBar();
   // ignore: deprecated_member_use
-  scaffoldKey.currentState!.showSnackBar(SnackBar(
+  _scaffoldKey.currentState!.showSnackBar(SnackBar(
     duration: const Duration(milliseconds: 1069),
     elevation: deviceHeight / 2, // Doesnt work, bc why not ?
     content: const Text('Wrong Answer !'),
@@ -348,38 +349,4 @@ Route createRoute(Widget widget) {
       );
     },
   );
-}
-
-_saveTextData(int avgTimeToAdd) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setInt('att', avgTimeToAdd);
-  if (kDebugMode) {
-    print('Average time : ${prefs.getInt('att')}');
-  }
-}
-
-_closeTextAnalytics() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
-    if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
-    }
-  } else {
-    await FirebaseAnalytics.instance.logEvent(
-      name: 'text_close',
-    );
-  }
-}
-
-_newTextGenerated() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
-    if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
-    }
-  } else {
-    await FirebaseAnalytics.instance.logEvent(
-      name: 'new_text',
-    );
-  }
 }
