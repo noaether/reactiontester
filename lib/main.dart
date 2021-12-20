@@ -211,11 +211,9 @@ class _HomeCardsState extends State<HomeCards> {
                       // First page
                       onTap: () {
                         _openColourAnalytics();
-                        Navigator.of(context).pushAndRemoveUntil(
-                            createRoute(
-                              const colourReflexes(),
-                            ),
-                            (route) => false);
+                        Navigator.of(context).push(createRoute(
+                          const colourReflexes(),
+                        ));
                       },
                       child: IgnorePointer(
                         child: SizedBox(
@@ -363,11 +361,9 @@ class _HomeCardsState extends State<HomeCards> {
                       // First page
                       onTap: () {
                         _openTextAnalytics();
-                        Navigator.of(context).pushAndRemoveUntil(
-                            createRoute(
-                              const textReflexes(),
-                            ),
-                            (route) => false);
+                        Navigator.of(context).push(createRoute(
+                          const textReflexes(),
+                        ));
                       },
                       child: IgnorePointer(
                         child: SizedBox(
@@ -634,11 +630,9 @@ class _HomeCardsState extends State<HomeCards> {
                       // First page
                       onTap: () {
                         _openColourAnalytics();
-                        Navigator.of(context).pushAndRemoveUntil(
-                            createRoute(
-                              const colourReflexes(),
-                            ),
-                            (route) => false);
+                        Navigator.of(context).push(createRoute(
+                          const colourReflexes(),
+                        ));
                       },
                       child: IgnorePointer(
                         child: SizedBox(
@@ -786,11 +780,9 @@ class _HomeCardsState extends State<HomeCards> {
                       // First page
                       onTap: () {
                         _openTextAnalytics();
-                        Navigator.of(context).pushAndRemoveUntil(
-                            createRoute(
-                              const textReflexes(),
-                            ),
-                            (route) => false);
+                        Navigator.of(context).push(createRoute(
+                          const textReflexes(),
+                        ));
                       },
                       child: IgnorePointer(
                         child: SizedBox(
