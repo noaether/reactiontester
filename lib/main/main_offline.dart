@@ -10,14 +10,9 @@ import '../games/text_reflexes.dart' as text_reflexes;
 int? localClAvgOffline;
 int? localTxAvgOffline;
 
-class MainOffline extends StatefulWidget {
+class MainOffline extends StatelessWidget {
   const MainOffline({Key? key}) : super(key: key);
 
-  @override
-  _MainOfflineState createState() => _MainOfflineState();
-}
-
-class _MainOfflineState extends State<MainOffline> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,7 +139,7 @@ class _MainOfflineState extends State<MainOffline> {
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                            child: localClAvgOffline != null
+                            child: localClAvgOffline != 0
                                 ? Text(
                                     'Average time taken: $localClAvgOffline ms',
                                     textAlign: TextAlign.center,
@@ -294,7 +289,7 @@ class _MainOfflineState extends State<MainOffline> {
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                            child: localTxAvgOffline != null
+                            child: localTxAvgOffline != 0
                                 ? Text(
                                     'Average time taken: $localTxAvgOffline ms',
                                     textAlign: TextAlign.center,

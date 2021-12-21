@@ -3,7 +3,6 @@
 // Internal files
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import './main/main_offline.dart' as main_offline;
 import './main/main_online.dart' as main_online;
@@ -37,7 +36,6 @@ import 'package:universal_platform/universal_platform.dart';
 // Core
 import 'dart:core';
 
-import 'main.dart';
 
 Key scaffoldKeyOnline = GlobalKey<ScaffoldState>();
 Key scaffoldKeyOffline = GlobalKey<ScaffoldState>();

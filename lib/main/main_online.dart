@@ -15,14 +15,9 @@ import '../update.dart' as update;
 late int localClAvgOnline;
 late int localTxAvgOnline;
 
-class MainOnline extends StatefulWidget {
+class MainOnline extends StatelessWidget {
   const MainOnline({Key? key}) : super(key: key);
 
-  @override
-  _MainOnlineState createState() => _MainOnlineState();
-}
-
-class _MainOnlineState extends State<MainOnline> {
   Route<Object?> dialogBuilder(
       BuildContext context,
       // ignore: require_trailing_commas
