@@ -22,6 +22,8 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 // Analytics
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:crypto/crypto.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 // Storing Data Internally
@@ -34,7 +36,8 @@ import 'package:url_launcher/url_launcher.dart';
 // Core
 import 'dart:core';
 
-final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+final Key _scaffoldKeyOnline = GlobalKey<ScaffoldState>();
+final Key _scaffoldKeyOffline = GlobalKey<ScaffoldState>();
 
 // Variables
 final FlexColorScheme light = FlexColorScheme.light(scheme: FlexScheme.shark);
@@ -43,7 +46,7 @@ final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
 final ThemeData lightTheme = light.toTheme;
 final ThemeData darkTheme = dark.toTheme;
 
-String installedVersion = "1.2.2.2-2";
+String installedVersion = '1.2.2.2-2';
 String? webVersion;
 
 bool willInteract = false;
@@ -64,52 +67,76 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  FirebaseFirestore.instance.settings = const Settings(
-      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED, persistenceEnabled: true);
-
-  var connectivityResult = await (Connectivity().checkConnectivity());
-  if (connectivityResult == ConnectivityResult.none) {
-    //
-    // NETWORK : NO CONNECTION FOUND
-    //
+  if (Platform.isWindows) {
     willInteract = false;
-    await FirebaseFirestore.instance.disableNetwork();
     if (kDebugMode) {
-      print("No connectivity found; Cannot verify version nor send analytics");
+      print("Device is Desktop, can't send analytics");
     }
   } else {
-    //
-    // NETWORK : WIFI/ETHERNET/MOBILE
-    //
-    if ((Platform.isAndroid == false && kIsWeb == false)) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      //
+      // NETWORK : NO CONNECTION FOUND
+      //
       willInteract = false;
-      if (kDebugMode) {
-        print("Device is Desktop, can't send analytics");
+      if (Platform.isWindows) {
+        if (kDebugMode) {
+          print("Device is Desktop, can't send analytics");
+        }
+      } else {
+        await FirebaseFirestore.instance.disableNetwork();
+        if (kDebugMode) {
+          print(
+            'No connectivity found; Cannot verify version nor send analytics',
+          );
+        }
       }
     } else {
-      willInteract = true;
-      if (kDebugMode) {
-        print(
-            "Internet connectivity detected; Will verify version and send analytics");
+      //
+      // NETWORK : WIFI/ETHERNET/MOBILE
+      //
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+
+      FirebaseFirestore.instance.settings = const Settings(
+        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+        persistenceEnabled: true,
+      );
+
+      String? userID = await _getId();
+      FirebaseCrashlytics.instance.setUserIdentifier(userID!);
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+      if (Platform.isWindows) {
+        willInteract = false;
+        if (kDebugMode) {
+          print("Device is Desktop, can't send analytics");
+        }
+      } else {
+        willInteract = true;
+        if (kDebugMode) {
+          print(
+            'Internet connectivity detected; Will verify version and send analytics',
+          );
+        }
+        var url = Uri.parse(
+          'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version',
+        );
+        final response =
+            await http.get(url, headers: {'Accept': 'application/json'});
+        webVersion = response.body;
+        openAppAnalytics();
       }
-      var url = Uri.parse(
-          'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version');
-      final response =
-          await http.get(url, headers: {"Accept": "application/json"});
-      webVersion = response.body;
-      openAppAnalytics();
     }
   }
+
   int endTime = DateTime.now().millisecondsSinceEpoch;
   int loadTime = endTime - startTime;
 
   runApp(const materialHomePage());
   if (kDebugMode) {
-    print("It took : $loadTime ms to load all async functions");
+    print('It took : $loadTime ms to load all async functions');
   }
 }
 
@@ -137,7 +164,9 @@ class HomeCards extends StatefulWidget {
 
 class _HomeCardsState extends State<HomeCards> {
   static Route<Object?> _dialogBuilder(
-      BuildContext context, Object? arguments) {
+      BuildContext context,
+      // ignore: require_trailing_commas
+      Object? arguments) {
     return RawDialogRoute<void>(
       pageBuilder: (
         BuildContext context,
@@ -166,26 +195,27 @@ class _HomeCardsState extends State<HomeCards> {
       String installedVersionText =
           utf8.decode(installedVersionList).toString();
       return Scaffold(
-        key: _scaffoldKey,
+        key: _scaffoldKeyOnline,
         appBar: AppBar(
-            title: const Text(
-              "ReactionTester",
-              textAlign: TextAlign.justify,
-            ),
-            backgroundColor:
-                MediaQuery.of(context).platformBrightness == Brightness.light
-                    ? FlexColor.sharkLightPrimary
-                    : FlexColor.brandBlueDarkPrimary,
-            leading: webVersionText != installedVersionText
-                ? IconButton(
-                    alignment: Alignment.center,
-                    tooltip: "Upgrade is available !",
-                    onPressed: () {
-                      Navigator.of(context).restorablePush(_dialogBuilder);
-                    },
-                    icon: const Icon(Icons.upgrade),
-                  )
-                : null),
+          title: const Text(
+            'ReactionTester',
+            textAlign: TextAlign.justify,
+          ),
+          backgroundColor:
+              MediaQuery.of(context).platformBrightness == Brightness.light
+                  ? FlexColor.sharkLightPrimary
+                  : FlexColor.brandBlueDarkPrimary,
+          leading: webVersionText != installedVersionText
+              ? IconButton(
+                  alignment: Alignment.center,
+                  tooltip: 'Upgrade is available !',
+                  onPressed: () {
+                    Navigator.of(context).restorablePush(_dialogBuilder);
+                  },
+                  icon: const Icon(Icons.upgrade),
+                )
+              : null,
+        ),
         body: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -205,9 +235,12 @@ class _HomeCardsState extends State<HomeCards> {
                       // First page
                       onTap: () {
                         openColourAnalytics();
-                        Navigator.of(context).push(createRoute(
-                          const colourReflexes(),
-                        ));
+                        Navigator.of(context).pushAndRemoveUntil(
+                          createRoute(
+                            const colourReflexes(),
+                          ),
+                          (route) => false,
+                        );
                       },
                       child: IgnorePointer(
                         child: SizedBox(
@@ -354,10 +387,12 @@ class _HomeCardsState extends State<HomeCards> {
                     InkWell(
                       // First page
                       onTap: () {
-                        openTextAnalytics();
-                        Navigator.of(context).push(createRoute(
-                          const textReflexes(),
-                        ));
+                        Navigator.of(context).pushAndRemoveUntil(
+                          createRoute(
+                            const textReflexes(),
+                          ),
+                          (route) => false,
+                        );
                       },
                       child: IgnorePointer(
                         child: SizedBox(
@@ -506,7 +541,7 @@ class _HomeCardsState extends State<HomeCards> {
                       onTap: () {
                         showAboutDialog(
                           context: context,
-                          applicationName: "ReactionTester",
+                          applicationName: 'ReactionTester',
                           applicationVersion: installedVersion,
                         );
                       },
@@ -516,7 +551,7 @@ class _HomeCardsState extends State<HomeCards> {
                         child: FittedBox(
                           fit: BoxFit.fitWidth,
                           child: Text(
-                            "About this app",
+                            'About this app',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -572,7 +607,7 @@ class _HomeCardsState extends State<HomeCards> {
                         child: FittedBox(
                           fit: BoxFit.fitWidth,
                           child: Text(
-                            "Check for updates",
+                            'Check for updates',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -596,10 +631,10 @@ class _HomeCardsState extends State<HomeCards> {
       getDataColourOffline();
       getDataTextOffline();
       return Scaffold(
-        key: _scaffoldKey,
+        key: _scaffoldKeyOffline,
         appBar: AppBar(
           title: const Text(
-            "ReactionTester",
+            'ReactionTester',
             textAlign: TextAlign.justify,
           ),
           backgroundColor:
@@ -626,9 +661,11 @@ class _HomeCardsState extends State<HomeCards> {
                       // First page
                       onTap: () {
                         openColourAnalytics();
-                        Navigator.of(context).push(createRoute(
-                          const colourReflexes(),
-                        ));
+                        Navigator.of(context).push(
+                          createRoute(
+                            const colourReflexes(),
+                          ),
+                        );
                       },
                       child: IgnorePointer(
                         child: SizedBox(
@@ -776,9 +813,11 @@ class _HomeCardsState extends State<HomeCards> {
                       // First page
                       onTap: () {
                         openTextAnalytics();
-                        Navigator.of(context).push(createRoute(
-                          const textReflexes(),
-                        ));
+                        Navigator.of(context).push(
+                          createRoute(
+                            const textReflexes(),
+                          ),
+                        );
                       },
                       child: IgnorePointer(
                         child: SizedBox(
@@ -927,7 +966,7 @@ class _HomeCardsState extends State<HomeCards> {
                       onTap: () {
                         showAboutDialog(
                           context: context,
-                          applicationName: "ReactionTester",
+                          applicationName: 'ReactionTester',
                           applicationVersion: installedVersion,
                         );
                       },
@@ -937,7 +976,7 @@ class _HomeCardsState extends State<HomeCards> {
                         child: FittedBox(
                           fit: BoxFit.fitWidth,
                           child: Text(
-                            "About this app",
+                            'About this app',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: (GoogleFonts.lato()).fontFamily,
@@ -998,23 +1037,38 @@ Route createRoute(Widget widget) {
   );
 }
 
-_launchURL() async {
+void _launchURL() async {
   const url = 'http://pocoyo.rf.gd';
   if (await canLaunch(url)) {
     await launch(url);
   } else {
-    throw "Unable to launch Internet Browser on device ${_getId()} ";
+    throw 'Unable to launch Internet Browser on device ${_getId()} ';
   }
 }
 
 Future<String?> _getId() async {
   var deviceInfo = DeviceInfoPlugin();
-  if (Platform.isIOS) {
-    // import 'dart:io'
-    var iosDeviceInfo = await deviceInfo.iosInfo;
-    return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+  if (kIsWeb) {
+    WebBrowserInfo webInfo = await deviceInfo.webBrowserInfo;
+    List<int> webBytes = utf8.encode(
+      webInfo.browserName.toString() +
+          webInfo.vendor! +
+          webInfo.hardwareConcurrency!.toString() +
+          webInfo.deviceMemory!.toString() +
+          webInfo.userAgent!.toString(),
+    );
+    Digest webDigest = sha1.convert(webBytes);
+    return webDigest.toString();
   } else {
-    var androidDeviceInfo = await deviceInfo.androidInfo;
-    return androidDeviceInfo.androidId; // unique ID on Android
+    if (Platform.isAndroid) {
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.androidId;
+    } else if (Platform.isIOS) {
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.identifierForVendor;
+    } else if (Platform.isLinux) {
+      LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
+      return linuxInfo.machineId;
+    }
   }
 }

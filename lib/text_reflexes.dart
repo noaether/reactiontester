@@ -162,10 +162,9 @@ class textReflexesState extends State<textReflexes> {
             .ceil();
     avgTimeTakenText = avgTimeTakenT;
     if (kDebugMode) {
-      print("Correct button is : " + randomButton.toString());
+      print('Correct button is : ' + randomButton.toString());
     }
     int timeTakenText;
-    int avgTimeTakenToAdd;
     return MaterialApp(
       theme: lightTheme,
       darkTheme: darkTheme,
@@ -185,12 +184,14 @@ class textReflexesState extends State<textReflexes> {
               timeTakenText = timeDiffText[1] - timeDiffText[0],
               timeDiffText.clear(),
               avgTimeText.add(timeTakenText),
-              avgTimeTakenToAdd = avgTimeTakenText,
-              saveTextData(avgTimeTakenToAdd),
+              saveInternalText(avgTimeTakenText),
+              saveDataText(avgTimeTakenText),
               endTimeText = 0,
               timeTakenText = 0,
               Navigator.of(context).pushAndRemoveUntil(
-                  createRoute(const materialHomePage()), (route) => false),
+                createRoute(const materialHomePage()),
+                (route) => false,
+              ),
             },
           ),
           title: Text('Font Matching - Average : $avgTimeTakenT ms'),
@@ -199,12 +200,13 @@ class textReflexesState extends State<textReflexes> {
         extendBodyBehindAppBar: true,
         // ignore: avoid_unnecessary_containers, prefer_const_constructors
         body: SafeArea(
-            // ignore: prefer_const_constructors
-            child: Container(
           // ignore: prefer_const_constructors
-          child: textBox(),
-          alignment: Alignment.center,
-        )),
+          child: Container(
+            // ignore: prefer_const_constructors
+            child: textBox(),
+            alignment: Alignment.center,
+          ),
+        ),
         floatingActionButton: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -322,11 +324,13 @@ void _wrongAnswer(BuildContext context) {
   // ignore: deprecated_member_use
   _scaffoldKey.currentState!.hideCurrentSnackBar();
   // ignore: deprecated_member_use
-  _scaffoldKey.currentState!.showSnackBar(SnackBar(
-    duration: const Duration(milliseconds: 1069),
-    elevation: deviceHeight / 2, // Doesnt work, bc why not ?
-    content: const Text('Wrong Answer !'),
-  ));
+  _scaffoldKey.currentState!.showSnackBar(
+    SnackBar(
+      duration: const Duration(milliseconds: 1069),
+      elevation: deviceHeight / 2, // Doesnt work, bc why not ?
+      content: const Text('Wrong Answer !'),
+    ),
+  );
 }
 
 void goBack(BuildContext context) {

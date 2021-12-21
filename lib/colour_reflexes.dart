@@ -145,7 +145,7 @@ class colourReflexesState extends State<colourReflexes> {
             .ceil();
     avgTimeTakenColour = avgTimeTakenC;
     if (kDebugMode) {
-      print("Correct button is : " + randomButton.toString());
+      print('Correct button is : ' + randomButton.toString());
     }
     int timeTakenColour;
 
@@ -168,12 +168,14 @@ class colourReflexesState extends State<colourReflexes> {
               timeTakenColour = timeDiffColours[1] - timeDiffColours[0],
               timeDiffColours.clear(),
               avgTimeColours.add(timeTakenColour),
-              saveColourData(avgTimeTakenColour),
+              saveInternalColour(avgTimeTakenColour),
               saveDataColour(avgTimeTakenColour, isbw),
               endTimeColour = 0,
               timeTakenColour = 0,
               Navigator.of(context).pushAndRemoveUntil(
-                  createRoute(const materialHomePage()), (route) => false)
+                createRoute(const materialHomePage()),
+                (route) => false,
+              )
             },
           ),
           actions: <Widget>[
@@ -226,9 +228,17 @@ class colourReflexesState extends State<colourReflexes> {
                       Colors.amber,
                       Colors.black,
                       const Color.fromARGB(
-                          255, 105, 105, 105), // Grey but hex is #696969
+                        255,
+                        105,
+                        105,
+                        105,
+                      ), // Grey but hex is #696969
                       const Color.fromARGB(
-                          255, 66, 4, 32), // Magenta but hex is #b00b69
+                        255,
+                        66,
+                        4,
+                        32,
+                      ), // Magenta but hex is #b00b69
                       const Color.fromARGB(255, 176, 11, 105),
                     ],
                   );
@@ -344,11 +354,13 @@ void _correctAnswer(BuildContext context) {
   // ignore: deprecated_member_use
   _scaffoldKey.currentState!.hideCurrentSnackBar();
   // ignore: deprecated_member_use
-  _scaffoldKey.currentState!.showSnackBar(SnackBar(
-    elevation: deviceHeight / 2, // Doesnt work, bc why not ?
-    duration: const Duration(milliseconds: 1069),
-    content: Text('Right Answer ! It took you : $timeTaken ms'),
-  ));
+  _scaffoldKey.currentState!.showSnackBar(
+    SnackBar(
+      elevation: deviceHeight / 2, // Doesnt work, bc why not ?
+      duration: const Duration(milliseconds: 1069),
+      content: Text('Right Answer ! It took you : $timeTaken ms'),
+    ),
+  );
   timeDiffColours.clear();
 }
 
@@ -358,11 +370,13 @@ void _wrongAnswer(BuildContext context) {
   // ignore: deprecated_member_use
   _scaffoldKey.currentState!.hideCurrentSnackBar();
   // ignore: deprecated_member_use
-  _scaffoldKey.currentState!.showSnackBar(SnackBar(
-    duration: const Duration(milliseconds: 1069),
-    elevation: deviceHeight / 2, // Doesnt work, bc why not ?
-    content: const Text('Wrong Answer !'),
-  ));
+  _scaffoldKey.currentState!.showSnackBar(
+    SnackBar(
+      duration: const Duration(milliseconds: 1069),
+      elevation: deviceHeight / 2, // Doesnt work, bc why not ?
+      content: const Text('Wrong Answer !'),
+    ),
+  );
 }
 
 Route createRoute(Widget widget) {

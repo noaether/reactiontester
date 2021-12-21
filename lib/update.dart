@@ -65,7 +65,7 @@ class updateApp extends StatelessWidget {
   }
 }
 
-_launchURL() async {
+void _launchURL() async {
   const url = 'https://github.com/Pocoyo-dev/reactiontester/releases/';
   if (await canLaunch(url)) {
     await launch(url);

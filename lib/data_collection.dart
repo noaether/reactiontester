@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 // Internal functions
 import 'package:reactiontester/main.dart';
@@ -22,33 +23,62 @@ import 'package:shared_preferences/shared_preferences.dart';
 // ANALYTICS : MAIN
 //
 
-openAppAnalytics() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void openAppAnalytics() async {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
-    } else {
-      await FirebaseAnalytics.instance.logAppOpen();
     }
+  } else {
+    CollectionReference userData =
+        FirebaseFirestore.instance.collection('userData');
+
+    String? deviceId = await _getId();
+    String? deviceType = await _getDeviceType();
+    String? deviceVersion = await _getDeviceVersion();
+
+    FirebaseFirestore.instance.collection('userData').doc(deviceId).get().then(
+      (DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          if (kDebugMode) {
+            print('User is already registred in DB');
+          }
+        } else {
+          userData.doc(deviceId).set({
+            'deviceID': deviceId,
+            'deviceType': deviceType,
+            'deviceVersion': deviceVersion,
+          }).then(
+            (value) {
+              if (kDebugMode) {
+                print('New user added to DB');
+              }
+            },
+          ).catchError((error) {
+            if (kDebugMode) {
+              print("Couldn't update user data: " + error);
+            }
+          });
+        }
+      },
+    );
+    await FirebaseAnalytics.instance.logAppOpen();
   }
 }
 
-openColourAnalytics() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void openColourAnalytics() async {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
-    } else {
-      await FirebaseAnalytics.instance.logEvent(
-        name: 'open_colour',
-      );
     }
+  } else {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'open_colour',
+    );
   }
 }
 
-closeColourAnalytics() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void closeColourAnalytics() async {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -59,9 +89,8 @@ closeColourAnalytics() async {
   }
 }
 
-openTextAnalytics() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void openTextAnalytics() async {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -72,9 +101,8 @@ openTextAnalytics() async {
   }
 }
 
-closeTextAnalytics() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void closeTextAnalytics() async {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -89,9 +117,8 @@ closeTextAnalytics() async {
 // ANALYTICS : MAIN GAME
 //
 
-correctAns() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void correctAns() async {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -102,9 +129,8 @@ correctAns() async {
   }
 }
 
-wrongAns() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void wrongAns() async {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -119,9 +145,8 @@ wrongAns() async {
 // ANALYTICS : FONT GAME
 //
 
-newTextGenerated() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void newTextGenerated() async {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -136,9 +161,8 @@ newTextGenerated() async {
 // ANALYTICS : COLOUR GAME
 //
 
-blackAndWhiteOn() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void blackAndWhiteOn() async {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -149,9 +173,8 @@ blackAndWhiteOn() async {
   }
 }
 
-blackAndWhiteOff() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void blackAndWhiteOff() async {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -163,9 +186,8 @@ blackAndWhiteOff() async {
   }
 }
 
-newColourGenerated() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void newColourGenerated() async {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send analytics");
     }
@@ -180,70 +202,62 @@ newColourGenerated() async {
 // DATA : WRITE TO FIRESTORE
 //
 
-saveDataColour(int cAvg, bool isBw) async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void saveDataColour(int cAvg, bool isBw) async {
+  saveInternalColour(cAvg);
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send data");
-    } else {
-      CollectionReference userData =
-          FirebaseFirestore.instance.collection('userData');
-
-      String? deviceId = await _getId();
-      String? deviceType = await _getDeviceType();
-      String? deviceVersion = await _getDeviceVersion();
-
-      userData.doc(deviceId).set({
-        'avgTimeC': cAvg,
-        'isBlackAndWhite': isBw,
-        'deviceID': deviceId,
-        'deviceType': deviceType,
-        'deviceVersion': deviceVersion,
-      }).then(
-        (value) {
-          if (kDebugMode) {
-            print("User Data Updated");
-          }
-        },
-      ).catchError((error) {
-        if (kDebugMode) {
-          print("Couldn't update user data: " + error);
-        }
-      });
     }
+  } else {
+    CollectionReference userData =
+        FirebaseFirestore.instance.collection('userData');
+
+    String? deviceId = await _getId();
+
+    userData.doc(deviceId).update({
+      'avgTimeC': cAvg,
+      'isBlackAndWhite': isBw,
+    }).then(
+      (value) {
+        if (kDebugMode) {
+          print('User Data Updated');
+        }
+      },
+    ).catchError((error) {
+      if (kDebugMode) {
+        print("Couldn't update user data: " + error);
+      }
+    });
   }
 }
 
-saveDataText(int tAvg) async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+void saveDataText(int tAvg) async {
+  saveInternalText(tAvg);
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send data");
-    } else {
-      CollectionReference userData =
-          FirebaseFirestore.instance.collection('userData');
+    }
+  } else {
+    CollectionReference userData =
+        FirebaseFirestore.instance.collection('userData');
 
-      String? deviceId = await _getId();
-      String? deviceType = await _getDeviceType();
-      String? deviceVersion = await _getDeviceVersion();
+    String? deviceId = await _getId();
 
-      userData.doc(deviceId).set({
-        'avgTimeT': tAvg,
-        'deviceID': deviceId,
-        'deviceType': deviceType,
-        'deviceVersion': deviceVersion,
-      }).then(
-        (value) {
-          if (kDebugMode) {
-            print("User Data Updated");
-          }
-        },
-      ).catchError((error) {
+    userData.doc(deviceId).update({
+      'avgTimeT': tAvg,
+    }).then(
+      (value) {
+        if (kDebugMode) {
+          print('User Data Updated');
+        }
+      },
+    ).catchError(
+      (error) {
         if (kDebugMode) {
           print("Couldn't update user data: " + error);
         }
-      });
-    }
+      },
+    );
   }
 }
 
@@ -252,8 +266,7 @@ saveDataText(int tAvg) async {
 //
 
 Future<int?> readColourData() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send data");
     }
@@ -264,14 +277,22 @@ Future<int?> readColourData() async {
         FirebaseFirestore.instance.collection('userData');
 
     var queryData = await userData.doc(deviceId).get();
+    if (queryData.data() == null) {
+      throw Error();
+    }
     Map<String, dynamic> data = queryData.data() as Map<String, dynamic>;
-    return data['avgTimeC'];
+    if (data['avgTimeC'] == null) {
+      throw Error();
+    } else {
+      return data['avgTimeC'];
+    }
   }
 }
 
+class DataNotFoundException {}
+
 Future<int?> readTextData() async {
-  if ((Platform.isAndroid == false && kIsWeb == false) ||
-      willInteract == false) {
+  if ((Platform.isWindows) || willInteract == false) {
     if (kDebugMode) {
       print("Device is Desktop, can't send data");
     }
@@ -282,15 +303,24 @@ Future<int?> readTextData() async {
         FirebaseFirestore.instance.collection('userData');
 
     var queryData = await userData.doc(deviceId).get();
+    if (queryData.data() == null) {
+      throw Error();
+    }
     Map<String, dynamic> data = queryData.data() as Map<String, dynamic>;
-    return data['avgTimeT'];
+    if (data['avgTimeT'] == null) {
+      throw Error();
+      // SharedPreferences? prefs = await SharedPreferences.getInstance();
+      // return prefs.getInt('att');
+    } else {
+      return data['avgTimeT'];
+    }
   }
 }
 //
 // DATA : INTERNAL
 //
 
-getData() async {
+void getData() async {
   SharedPreferences? prefs = await SharedPreferences.getInstance();
   atc = prefs.getInt('atc');
   att = prefs.getInt('att');
@@ -311,10 +341,10 @@ void getDataColourOnline() async {
 }
 
 void getDataTextOnline() async {
-  att = await readColourData();
+  att = await readTextData();
 }
 
-saveColourData(int avgTimeToAdd) async {
+void saveInternalColour(int avgTimeToAdd) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setInt('atc', avgTimeToAdd);
   if (kDebugMode) {
@@ -322,7 +352,7 @@ saveColourData(int avgTimeToAdd) async {
   }
 }
 
-saveTextData(int avgTimeToAdd) async {
+void saveInternalText(int avgTimeToAdd) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setInt('att', avgTimeToAdd);
   if (kDebugMode) {
@@ -369,13 +399,13 @@ Future<String?> _getDeviceType() async {
   } else {
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      return androidInfo.androidId;
+      return androidInfo.model;
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      return iosInfo.identifierForVendor;
+      return iosInfo.model;
     } else if (Platform.isLinux) {
       LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
-      return linuxInfo.machineId;
+      return linuxInfo.prettyName;
     }
   }
 }
@@ -388,13 +418,14 @@ Future<String?> _getDeviceVersion() async {
   } else {
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      return androidInfo.androidId;
+      AndroidBuildVersion ec = androidInfo.version;
+      return 'Android ${ec.release}; SDK ${androidInfo.version.sdkInt}';
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      return iosInfo.identifierForVendor;
+      return iosInfo.systemVersion;
     } else if (Platform.isLinux) {
       LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
-      return linuxInfo.machineId;
+      return linuxInfo.version;
     }
   }
 }
