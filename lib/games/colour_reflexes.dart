@@ -8,8 +8,10 @@ import 'package:flutter/material.dart';
 import 'dart:core';
 import 'dart:math';
 
-import 'package:reactiontester/main.dart';
-import 'package:reactiontester/data_collection.dart';
+import '../main.dart' as main;
+import '../main/main_offline.dart' as main_offline;
+import '../main/main_online.dart' as main_online;
+import '../functions/data_collection.dart' as data_collection;
 
 Color? randomColour1 = Colors.transparent;
 
@@ -121,7 +123,7 @@ class colourReflexesState extends State<colourReflexes> {
           buttonColours.add(randomColour5);
           buttonColours.add(randomColour6);
         }
-        newColourGenerated();
+        data_collection.newColourGenerated();
       },
     );
   }
@@ -162,18 +164,19 @@ class colourReflexesState extends State<colourReflexes> {
                   : FlexColor.brandBlueDarkPrimary,
           leading: BackButton(
             onPressed: () => {
-              closeColourAnalytics(),
+              data_collection.closeColourAnalytics(),
               endTimeColour = DateTime.now().millisecondsSinceEpoch,
               timeDiffColours.add(endTimeColour),
               timeTakenColour = timeDiffColours[1] - timeDiffColours[0],
               timeDiffColours.clear(),
               avgTimeColours.add(timeTakenColour),
-              saveInternalColour(avgTimeTakenColour),
-              saveDataColour(avgTimeTakenColour, isbw),
+              data_collection.saveDataColour(avgTimeTakenColour, isbw),
+              main_online.localClAvgOnline = avgTimeTakenColour,
+              main_offline.localClAvgOffline = avgTimeTakenColour,
               endTimeColour = 0,
               timeTakenColour = 0,
               Navigator.of(context).pushAndRemoveUntil(
-                createRoute(const materialHomePage()),
+                createRoute(const main.materialHomePage()),
                 (route) => false,
               )
             },
@@ -184,7 +187,7 @@ class colourReflexesState extends State<colourReflexes> {
               tooltip: 'Toggle b/w',
               onPressed: () {
                 if (isbw == false) {
-                  blackAndWhiteOn();
+                  data_collection.blackAndWhiteOn();
                   colorList.clear();
                   colorList.addAll(
                     [
@@ -205,7 +208,7 @@ class colourReflexesState extends State<colourReflexes> {
                   isbw = true;
                   newColour();
                 } else {
-                  blackAndWhiteOff();
+                  data_collection.blackAndWhiteOff();
                   colorList.clear();
                   colorList.addAll(
                     [
@@ -343,7 +346,7 @@ class colourBox extends StatelessWidget {
 }
 
 void _correctAnswer(BuildContext context) {
-  correctAns();
+  data_collection.correctAns();
   double deviceHeight = MediaQuery.of(context).size.height;
 
   int dateInMSAfterAnswer = DateTime.now().millisecondsSinceEpoch;
@@ -365,7 +368,7 @@ void _correctAnswer(BuildContext context) {
 }
 
 void _wrongAnswer(BuildContext context) {
-  wrongAns();
+  data_collection.wrongAns();
   double deviceHeight = MediaQuery.of(context).size.height;
   // ignore: deprecated_member_use
   _scaffoldKey.currentState!.hideCurrentSnackBar();

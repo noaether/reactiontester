@@ -2,22 +2,21 @@
 
 // Internal files
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'colour_reflexes.dart';
-import 'text_reflexes.dart';
-import 'update.dart';
-import 'data_collection.dart';
-import 'firebase_options.dart';
+import './main/main_offline.dart' as main_offline;
+import './main/main_online.dart' as main_online;
+import './functions/data_collection.dart' as data_collection;
+import './functions/firebase_options.dart' as firebase_options;
 
 // Flutter
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'dart:io';
 import 'dart:convert';
 
 // UI
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 // Analytics
@@ -31,13 +30,17 @@ import 'package:device_info_plus/device_info_plus.dart';
 
 // Reading/Opening Data Externally
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
+
+// Web Alternatives
+import 'package:universal_platform/universal_platform.dart';
 
 // Core
 import 'dart:core';
 
-final Key _scaffoldKeyOnline = GlobalKey<ScaffoldState>();
-final Key _scaffoldKeyOffline = GlobalKey<ScaffoldState>();
+import 'main.dart';
+
+Key scaffoldKeyOnline = GlobalKey<ScaffoldState>();
+Key scaffoldKeyOffline = GlobalKey<ScaffoldState>();
 
 // Variables
 final FlexColorScheme light = FlexColorScheme.light(scheme: FlexScheme.shark);
@@ -51,9 +54,6 @@ String? webVersion;
 
 bool willInteract = false;
 
-int? atc;
-int? att;
-
 void main() async {
   int startTime = DateTime.now().millisecondsSinceEpoch;
   LicenseRegistry.addLicense(() async* {
@@ -66,68 +66,104 @@ void main() async {
   });
 
   WidgetsFlutterBinding.ensureInitialized();
-
-  if (Platform.isWindows) {
-    willInteract = false;
+  if (UniversalPlatform.isDesktop) {
+    // PLATFORM : DESKTOP
     if (kDebugMode) {
-      print("Device is Desktop, can't send analytics");
+      print(
+        'Current Platform : Desktop; Will NOT send : FireStore, Crashalytics and Analytics',
+      );
     }
+    willInteract = false;
   } else {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      //
-      // NETWORK : NO CONNECTION FOUND
-      //
-      willInteract = false;
-      if (Platform.isWindows) {
-        if (kDebugMode) {
-          print("Device is Desktop, can't send analytics");
-        }
-      } else {
-        await FirebaseFirestore.instance.disableNetwork();
-        if (kDebugMode) {
-          print(
-            'No connectivity found; Cannot verify version nor send analytics',
-          );
-        }
-      }
+    if (connectivityResult != ConnectivityResult.none) {
+      // PLATFORM : NOT KNOWN YET
+      // NETWORK : CONNECTED
+      willInteract = true;
     } else {
-      //
-      // NETWORK : WIFI/ETHERNET/MOBILE
-      //
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+      // PLATFORM : NOT KNOWN YET
+      // NETWORK : NOT CONNECTED
+    }
+    if (UniversalPlatform.isAndroid &&
+        connectivityResult != ConnectivityResult.none) {
+      // PLATFORM : ANDROID WITH INTERNET
+      willInteract = true;
 
+      if (kDebugMode) {
+        print(
+          'Current Platform : Android; Will send : FireStore, Crashalytics and Analytics',
+        );
+      }
+      willInteract = true;
+      // SUPPORTS : FireStore, Crashalytics and Analytics
+      await Firebase.initializeApp(
+        options: firebase_options.DefaultFirebaseOptions.android,
+      );
+      // CRASHALYTICS :
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+      String? userID = await _getId();
+      FirebaseCrashlytics.instance.setUserIdentifier(userID!);
+      // FIRESTORE :
       FirebaseFirestore.instance.settings = const Settings(
         cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
         persistenceEnabled: true,
       );
 
-      String? userID = await _getId();
-      FirebaseCrashlytics.instance.setUserIdentifier(userID!);
-      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-      if (Platform.isWindows) {
-        willInteract = false;
-        if (kDebugMode) {
-          print("Device is Desktop, can't send analytics");
-        }
-      } else {
-        willInteract = true;
-        if (kDebugMode) {
-          print(
-            'Internet connectivity detected; Will verify version and send analytics',
-          );
-        }
-        var url = Uri.parse(
-          'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version',
+      bool wait = await data_collection.openAppAnalytics();
+      main_online.localClAvgOnline = await data_collection.readColourData();
+      main_online.localTxAvgOnline = await data_collection.readTextData();
+      main_offline.localClAvgOffline = await data_collection.readColourData();
+      main_offline.localTxAvgOffline = await data_collection.readTextData();
+      // ANALYTICS :
+      var url = Uri.parse(
+        'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version',
+      );
+      final response =
+          await http.get(url, headers: {'Accept': 'application/json'});
+      webVersion = response.body;
+      FirebaseAnalytics.instance.app.setAutomaticDataCollectionEnabled(true);
+      FirebaseAnalytics.instance.app
+          .setAutomaticResourceManagementEnabled(true);
+    } else if (UniversalPlatform.isIOS &&
+        connectivityResult != ConnectivityResult.none) {
+      // PLATFORM : IOS WITH INTERNET
+      // i dont have a firebase project for ios yet, dis just so i can modify my code in the future
+    } else if (UniversalPlatform.isWeb &&
+        connectivityResult != ConnectivityResult.none) {
+      // PLATFORM : WEB
+      willInteract = true;
+
+      if (kDebugMode) {
+        print(
+          'Current Platform : Web; Will send : FireStore and Analytics; Will not send Crashalytics',
         );
-        final response =
-            await http.get(url, headers: {'Accept': 'application/json'});
-        webVersion = response.body;
-        openAppAnalytics();
       }
+      willInteract = true;
+      // SUPPORTS : FireStore and Analytics
+      await Firebase.initializeApp(
+        options: firebase_options.DefaultFirebaseOptions.web,
+      );
+      // FIRESTORE :
+      // ANALYTICS :
+      FirebaseAnalytics.instance.app.setAutomaticDataCollectionEnabled(true);
+      FirebaseAnalytics.instance.app
+          .setAutomaticResourceManagementEnabled(true);
+      data_collection.openAppAnalytics();
+    } else {
+      // PLATFORM : UNKNOWN
+      if (kDebugMode) {
+        print(
+          'Current Platform : Unknown; Will operate in offline mode, with persistence',
+        );
+      }
+      await Firebase.initializeApp(
+        options: firebase_options.DefaultFirebaseOptions.currentPlatform,
+      );
+      await FirebaseFirestore.instance.disableNetwork();
+      FirebaseFirestore.instance.settings = const Settings(
+        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+        persistenceEnabled: true,
+      );
     }
   }
 
@@ -163,857 +199,12 @@ class HomeCards extends StatefulWidget {
 }
 
 class _HomeCardsState extends State<HomeCards> {
-  static Route<Object?> _dialogBuilder(
-      BuildContext context,
-      // ignore: require_trailing_commas
-      Object? arguments) {
-    return RawDialogRoute<void>(
-      pageBuilder: (
-        BuildContext context,
-        Animation<double> animation,
-        Animation<double> secondaryAnimation,
-      ) {
-        return const updateApp();
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (webVersion != null) {
-      //
-      // ONLINE
-      //
-      getDataColourOnline();
-      getDataTextOnline();
-      List<int> installedVersionList = [];
-      installedVersionList.addAll(utf8.encode(installedVersion));
-      List<int> webVersionList = [];
-      webVersionList.addAll(utf8.encode(webVersion!));
-      webVersionList.removeLast();
-      String webVersionText = utf8.decode(webVersionList).toString();
-      String installedVersionText =
-          utf8.decode(installedVersionList).toString();
-      return Scaffold(
-        key: _scaffoldKeyOnline,
-        appBar: AppBar(
-          title: const Text(
-            'ReactionTester',
-            textAlign: TextAlign.justify,
-          ),
-          backgroundColor:
-              MediaQuery.of(context).platformBrightness == Brightness.light
-                  ? FlexColor.sharkLightPrimary
-                  : FlexColor.brandBlueDarkPrimary,
-          leading: webVersionText != installedVersionText
-              ? IconButton(
-                  alignment: Alignment.center,
-                  tooltip: 'Upgrade is available !',
-                  onPressed: () {
-                    Navigator.of(context).restorablePush(_dialogBuilder);
-                  },
-                  icon: const Icon(Icons.upgrade),
-                )
-              : null,
-        ),
-        body: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Card(
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    InkWell(
-                      // First page
-                      onTap: () {
-                        openColourAnalytics();
-                        Navigator.of(context).pushAndRemoveUntil(
-                          createRoute(
-                            const colourReflexes(),
-                          ),
-                          (route) => false,
-                        );
-                      },
-                      child: IgnorePointer(
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              FittedBox(
-                                fit: BoxFit.fill,
-                                child: SelectableText(
-                                  'Colour Matching',
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 40,
-                                  ),
-                                ),
-                              ),
-                              FittedBox(
-                                fit: BoxFit.fill,
-                                child: SelectableText(
-                                  'How fast can you\r\nlink colours together ?',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                alignment: Alignment.center,
-                                child: SelectableText(
-                                  'Psst. You can swipe to get more info ->',
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    //
-                    //
-                    Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width - 10,
-                      child: Column(
-                        children: [
-                          Container(
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            child: SelectableText(
-                              'How do I play this game ?',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: (GoogleFonts.lato()).fontFamily,
-                                fontSize: 40,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            child: SelectableText(
-                              'You will be given one colour \r\n You will have three buttons to choose from \r\n Be quick though ! Your reaction time is measured',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: (GoogleFonts.lato()).fontFamily,
-                                fontSize: 25,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.width,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                              child: atc == null
-                                  ? Text(
-                                      'You haven\'t played this game yet!',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily:
-                                            (GoogleFonts.lato()).fontFamily,
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
-                                    )
-                                  : Text(
-                                      'Average time taken: $atc ms',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily:
-                                            (GoogleFonts.lato()).fontFamily,
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: Image(
-                              image:
-                                  const AssetImage('thumbnails/crflxthb.png'),
-                              width: MediaQuery.of(context).size.width - 100,
-                              height:
-                                  (MediaQuery.of(context).size.width - 100) *
-                                      0.47760,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-            //
-            //
-            //
-            Expanded(
-              flex: 3,
-              child: Card(
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    InkWell(
-                      // First page
-                      onTap: () {
-                        Navigator.of(context).pushAndRemoveUntil(
-                          createRoute(
-                            const textReflexes(),
-                          ),
-                          (route) => false,
-                        );
-                      },
-                      child: IgnorePointer(
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              FittedBox(
-                                fit: BoxFit.fill,
-                                child: SelectableText(
-                                  'Font Matching',
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 40,
-                                  ),
-                                ),
-                              ),
-                              FittedBox(
-                                fit: BoxFit.fill,
-                                child: SelectableText(
-                                  'How fast can you\r\nreunite fonts together ?',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                alignment: Alignment.center,
-                                child: SelectableText(
-                                  'Psst. You can swipe to get more info ->',
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    //
-                    //
-                    Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width - 10,
-                      child: Column(
-                        children: [
-                          Container(
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            child: SelectableText(
-                              'How do I play this game ?',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: (GoogleFonts.lato()).fontFamily,
-                                fontSize: 40,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            child: SelectableText(
-                              'You will be given one sentence \r\n You will have three buttons to choose from \r\n Be quick though ! Your reaction time is measured',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: (GoogleFonts.lato()).fontFamily,
-                                fontSize: 25,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.width,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                              child: att == null
-                                  ? Text(
-                                      'You haven\'t played this game yet!',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily:
-                                            (GoogleFonts.lato()).fontFamily,
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
-                                    )
-                                  : Text(
-                                      'Average time taken: $att ms',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily:
-                                            (GoogleFonts.lato()).fontFamily,
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: Image(
-                              image:
-                                  const AssetImage('thumbnails/trflxthb.png'),
-                              width: MediaQuery.of(context).size.width - 100,
-                              height:
-                                  (MediaQuery.of(context).size.width - 100) *
-                                      0.47760,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-            //
-            //
-            //
-            Expanded(
-              flex: 1,
-              child: Card(
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    InkWell(
-                      splashColor: Colors.blue.withAlpha(30),
-                      onTap: () {
-                        showAboutDialog(
-                          context: context,
-                          applicationName: 'ReactionTester',
-                          applicationVersion: installedVersion,
-                        );
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width - 10,
-                        child: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: Text(
-                            'About this app',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: (GoogleFonts.lato()).fontFamily,
-                              fontSize: 40,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      splashColor: Colors.blue.withAlpha(30),
-                      onTap: () {
-                        _launchURL();
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width - 10,
-                        child: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: Text(
-                            "About this app's developper",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: (GoogleFonts.lato()).fontFamily,
-                              fontSize: 35,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      splashColor: Colors.blue.withAlpha(30),
-                      onTap: () {
-                        if (kDebugMode) {
-                          print('Text 1 : $installedVersionList');
-                        }
-                        if (kDebugMode) {
-                          print('Text 2 : $webVersionList');
-                        }
-
-                        String webVersionText =
-                            utf8.decode(webVersionList).toString();
-                        String installedVersionText =
-                            utf8.decode(installedVersionList).toString();
-
-                        if (webVersionText != installedVersionText) {
-                          Navigator.of(context).restorablePush(_dialogBuilder);
-                        }
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width - 10,
-                        child: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: Text(
-                            'Check for updates',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: (GoogleFonts.lato()).fontFamily,
-                              fontSize: 35,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      return const main_online.MainOnline();
     } else {
-      //
-      // OFFLINE
-      //
-      getDataColourOffline();
-      getDataTextOffline();
-      return Scaffold(
-        key: _scaffoldKeyOffline,
-        appBar: AppBar(
-          title: const Text(
-            'ReactionTester',
-            textAlign: TextAlign.justify,
-          ),
-          backgroundColor:
-              MediaQuery.of(context).platformBrightness == Brightness.light
-                  ? FlexColor.sharkLightPrimary
-                  : FlexColor.brandBlueDarkPrimary,
-        ),
-        body: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Card(
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    InkWell(
-                      // First page
-                      onTap: () {
-                        openColourAnalytics();
-                        Navigator.of(context).push(
-                          createRoute(
-                            const colourReflexes(),
-                          ),
-                        );
-                      },
-                      child: IgnorePointer(
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              FittedBox(
-                                fit: BoxFit.fill,
-                                child: SelectableText(
-                                  'Colour Matching',
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 40,
-                                  ),
-                                ),
-                              ),
-                              FittedBox(
-                                fit: BoxFit.fill,
-                                child: SelectableText(
-                                  'How fast can you\r\nlink colours together ?',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                alignment: Alignment.center,
-                                child: SelectableText(
-                                  'Psst. You can swipe to get more info ->',
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    //
-                    //
-                    Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width - 10,
-                      child: Column(
-                        children: [
-                          Container(
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            child: SelectableText(
-                              'How do I play this game ?',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: (GoogleFonts.lato()).fontFamily,
-                                fontSize: 40,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            child: SelectableText(
-                              'You will be given one colour \r\n You will have three buttons to choose from \r\n Be quick though ! Your reaction time is measured',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: (GoogleFonts.lato()).fontFamily,
-                                fontSize: 25,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.width,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                              child: atc == null
-                                  ? Text(
-                                      'You haven\'t played this game yet!',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily:
-                                            (GoogleFonts.lato()).fontFamily,
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
-                                    )
-                                  : Text(
-                                      'Average time taken: $atc ms',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily:
-                                            (GoogleFonts.lato()).fontFamily,
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: Image(
-                              image:
-                                  const AssetImage('thumbnails/crflxthb.png'),
-                              width: MediaQuery.of(context).size.width - 100,
-                              height:
-                                  (MediaQuery.of(context).size.width - 100) *
-                                      0.47760,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-            //
-            //
-            //
-            Expanded(
-              flex: 3,
-              child: Card(
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    InkWell(
-                      // First page
-                      onTap: () {
-                        openTextAnalytics();
-                        Navigator.of(context).push(
-                          createRoute(
-                            const textReflexes(),
-                          ),
-                        );
-                      },
-                      child: IgnorePointer(
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              FittedBox(
-                                fit: BoxFit.fill,
-                                child: SelectableText(
-                                  'Font Matching',
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 40,
-                                  ),
-                                ),
-                              ),
-                              FittedBox(
-                                fit: BoxFit.fill,
-                                child: SelectableText(
-                                  'How fast can you\r\nreunite fonts together ?',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                alignment: Alignment.center,
-                                child: SelectableText(
-                                  'Psst. You can swipe to get more info ->',
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                    fontFamily: (GoogleFonts.lato()).fontFamily,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    //
-                    //
-                    Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width - 10,
-                      child: Column(
-                        children: [
-                          Container(
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            child: SelectableText(
-                              'How do I play this game ?',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: (GoogleFonts.lato()).fontFamily,
-                                fontSize: 40,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            child: SelectableText(
-                              'You will be given one sentence \r\n You will have three buttons to choose from \r\n Be quick though ! Your reaction time is measured',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: (GoogleFonts.lato()).fontFamily,
-                                fontSize: 25,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.width,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                              child: att == null
-                                  ? Text(
-                                      'You haven\'t played this game yet!',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily:
-                                            (GoogleFonts.lato()).fontFamily,
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
-                                    )
-                                  : Text(
-                                      'Average time taken: $att ms',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily:
-                                            (GoogleFonts.lato()).fontFamily,
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: Image(
-                              image:
-                                  const AssetImage('thumbnails/trflxthb.png'),
-                              width: MediaQuery.of(context).size.width - 100,
-                              height:
-                                  (MediaQuery.of(context).size.width - 100) *
-                                      0.47760,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-            //
-            //
-            //
-            Expanded(
-              flex: 1,
-              child: Card(
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    InkWell(
-                      splashColor: Colors.blue.withAlpha(30),
-                      onTap: () {
-                        showAboutDialog(
-                          context: context,
-                          applicationName: 'ReactionTester',
-                          applicationVersion: installedVersion,
-                        );
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width - 10,
-                        child: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: Text(
-                            'About this app',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: (GoogleFonts.lato()).fontFamily,
-                              fontSize: 40,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      splashColor: Colors.blue.withAlpha(30),
-                      onTap: () {
-                        _launchURL();
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width - 10,
-                        child: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: Text(
-                            "About this app's developper",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: (GoogleFonts.lato()).fontFamily,
-                              fontSize: 35,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      return const main_offline.MainOffline();
     }
   }
 }
@@ -1037,18 +228,9 @@ Route createRoute(Widget widget) {
   );
 }
 
-void _launchURL() async {
-  const url = 'http://pocoyo.rf.gd';
-  if (await canLaunch(url)) {
-    await launch(url);
-  } else {
-    throw 'Unable to launch Internet Browser on device ${_getId()} ';
-  }
-}
-
 Future<String?> _getId() async {
   var deviceInfo = DeviceInfoPlugin();
-  if (kIsWeb) {
+  if (UniversalPlatform.isWeb) {
     WebBrowserInfo webInfo = await deviceInfo.webBrowserInfo;
     List<int> webBytes = utf8.encode(
       webInfo.browserName.toString() +
@@ -1060,13 +242,13 @@ Future<String?> _getId() async {
     Digest webDigest = sha1.convert(webBytes);
     return webDigest.toString();
   } else {
-    if (Platform.isAndroid) {
+    if (UniversalPlatform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       return androidInfo.androidId;
-    } else if (Platform.isIOS) {
+    } else if (UniversalPlatform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       return iosInfo.identifierForVendor;
-    } else if (Platform.isLinux) {
+    } else if (UniversalPlatform.isLinux) {
       LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
       return linuxInfo.machineId;
     }

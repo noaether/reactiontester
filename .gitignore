@@ -32,3 +32,4 @@ buildapps.bat
 output/installer.iss
 output/ReactionTester.exe
 lib/firebase_options.dart
+lib/functions/firebase_options.dart

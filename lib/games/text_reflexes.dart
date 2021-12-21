@@ -10,8 +10,10 @@ import 'dart:math';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 
-import 'package:reactiontester/main.dart';
-import 'package:reactiontester/data_collection.dart';
+import '../main.dart' as main;
+import '../main/main_online.dart' as main_online;
+import '../main/main_offline.dart' as main_offline;
+import '../functions/data_collection.dart' as data_collection;
 
 Text? randomText1;
 Text? randomText4;
@@ -140,7 +142,7 @@ class textReflexesState extends State<textReflexes> {
           buttonFonts.add(randomText5);
           buttonFonts.add(randomText6);
         }
-        newTextGenerated();
+        data_collection.newTextGenerated();
       },
     );
   }
@@ -178,18 +180,19 @@ class textReflexesState extends State<textReflexes> {
                   : FlexColor.brandBlueDarkPrimary,
           leading: BackButton(
             onPressed: () => {
-              closeTextAnalytics(),
+              data_collection.closeTextAnalytics(),
               endTimeText = DateTime.now().millisecondsSinceEpoch,
               timeDiffText.add(endTimeText),
               timeTakenText = timeDiffText[1] - timeDiffText[0],
               timeDiffText.clear(),
               avgTimeText.add(timeTakenText),
-              saveInternalText(avgTimeTakenText),
-              saveDataText(avgTimeTakenText),
+              data_collection.saveDataText(avgTimeTakenText),
+              main_online.localTxAvgOnline = avgTimeTakenText,
+              main_offline.localTxAvgOffline = avgTimeTakenText,
               endTimeText = 0,
               timeTakenText = 0,
               Navigator.of(context).pushAndRemoveUntil(
-                createRoute(const materialHomePage()),
+                createRoute(const main.materialHomePage()),
                 (route) => false,
               ),
             },
@@ -296,7 +299,7 @@ class textBox extends StatelessWidget {
 }
 
 void _correctAnswer(BuildContext context) {
-  correctAns();
+  data_collection.correctAns();
   double deviceHeight = MediaQuery.of(context).size.height;
 
   endTimeText = DateTime.now().millisecondsSinceEpoch;
@@ -319,7 +322,7 @@ void _correctAnswer(BuildContext context) {
 }
 
 void _wrongAnswer(BuildContext context) {
-  wrongAns();
+  data_collection.wrongAns();
   double deviceHeight = MediaQuery.of(context).size.height;
   // ignore: deprecated_member_use
   _scaffoldKey.currentState!.hideCurrentSnackBar();
@@ -334,7 +337,7 @@ void _wrongAnswer(BuildContext context) {
 }
 
 void goBack(BuildContext context) {
-  Navigator.of(context).push(createRoute(const HomeCards()));
+  Navigator.of(context).push(createRoute(const main.HomeCards()));
 }
 
 Route createRoute(Widget widget) {
