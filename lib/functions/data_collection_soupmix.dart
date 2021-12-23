@@ -160,6 +160,9 @@ Future<int> readTextData() async {
           .from('userData')
           .select('avgTimeT')
           .match({'deviceId': deviceId}).execute();
+      if (kDebugMode) {
+        print(res.hasError);
+      }
       if (res.status == 200) {
         Map<String, dynamic> queriedData = res.toJson();
         List<dynamic> queriedIterable = queriedData.values.toList();

@@ -9,7 +9,6 @@ import 'dart:core';
 import 'dart:math';
 
 import '../main.dart' as main;
-import '../main/main_offline.dart' as main_offline;
 import '../main/main_online.dart' as main_online;
 import '../functions/data_collection_soupmix.dart' as data_collection;
 
@@ -172,7 +171,7 @@ class colourReflexesState extends State<colourReflexes> {
               avgTimeColours.add(timeTakenColour),
               data_collection.saveDataColour(avgTimeTakenColour, isbw),
               main_online.localClAvgOnline = avgTimeTakenColour,
-              main_offline.localClAvgOffline = avgTimeTakenColour,
+              main.localClAvgOffline = avgTimeTakenColour,
               endTimeColour = 0,
               timeTakenColour = 0,
               Navigator.of(context).pushAndRemoveUntil(

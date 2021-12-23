@@ -11,7 +11,6 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 import '../main.dart' as main;
 import '../main/main_online.dart' as main_online;
-import '../main/main_offline.dart' as main_offline;
 import '../functions/data_collection_soupmix.dart' as data_collection;
 
 Text? randomText1;
@@ -184,7 +183,7 @@ class textReflexesState extends State<textReflexes> {
               avgTimeText.add(timeTakenText),
               data_collection.saveDataText(avgTimeTakenText),
               main_online.localTxAvgOnline = avgTimeTakenText,
-              main_offline.localTxAvgOffline = avgTimeTakenText,
+              main.localTxAvgOffline = avgTimeTakenText,
               endTimeText = 0,
               timeTakenText = 0,
               Navigator.of(context).pushAndRemoveUntil(

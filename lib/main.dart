@@ -3,6 +3,7 @@
 // Internal files
 import 'dart:async';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -51,6 +52,8 @@ final ThemeData darkTheme = dark.toTheme;
 
 late SupabaseClient supabase;
 late String? deviceId;
+late int localClAvgOffline;
+late int localTxAvgOffline;
 MixpanelAnalytics? mixpanel;
 
 String installedVersion = '1.2.2.2-2';
@@ -71,35 +74,41 @@ void main() async {
   });
 
   WidgetsFlutterBinding.ensureInitialized();
+  deviceId = await misc.getId();
 
   var connectivityResult = await (Connectivity().checkConnectivity());
   if (connectivityResult != ConnectivityResult.none) {
     // NETWORK : TRUE
     willInteract = true;
+    supabase = SupabaseClient(
+      dotenv.env['SOUPURL']!,
+      dotenv.env['SOUPKEY']!,
+    );
+    data_collection_soupmix.createUserData();
+
+    main_online.localClAvgOnline =
+        await data_collection_soupmix.readColourData();
+    main_online.localTxAvgOnline = await data_collection_soupmix.readTextData();
+
+    var url = Uri.parse(
+      'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version',
+    );
+    final response =
+        await http.get(url, headers: {'Accept': 'application/json'});
+    webVersion = response.body;
   }
-
-  supabase = SupabaseClient(
-    dotenv.env['SOUPURL']!,
-    dotenv.env['SOUPKEY']!,
-  );
-
-  deviceId = await misc.getId();
-  data_collection_soupmix.createUserData();
-
+  SharedPreferences.getInstance().then((SharedPreferences sp) {
+    var sharedPreferences = sp;
+    localClAvgOffline = sharedPreferences.getInt('atc') ?? 0;
+    localTxAvgOffline = sharedPreferences.getInt('att') ?? 0;
+    if (kDebugMode) {
+      print(
+        '${localClAvgOffline.toString()} & ${localTxAvgOffline.toString()}',
+      );
+    }
+  });
   int endTime = DateTime.now().millisecondsSinceEpoch;
   int loadTime = endTime - startTime;
-
-  main_online.localClAvgOnline = await data_collection_soupmix.readColourData();
-  main_online.localTxAvgOnline = await data_collection_soupmix.readTextData();
-  main_offline.localClAvgOffline =
-      await data_collection_soupmix.readColourData();
-  main_offline.localTxAvgOffline = await data_collection_soupmix.readTextData();
-
-  var url = Uri.parse(
-    'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version',
-  );
-  final response = await http.get(url, headers: {'Accept': 'application/json'});
-  webVersion = response.body;
 
   runApp(const materialHomePage());
   if (kDebugMode) {
@@ -130,6 +139,7 @@ class HomeCards extends StatefulWidget {
 }
 
 class _HomeCardsState extends State<HomeCards> {
+  late SharedPreferences sharedPreferences;
   final _user$ = StreamController<String>.broadcast();
   // ignore: unused_field
   Object? _error;
@@ -139,7 +149,13 @@ class _HomeCardsState extends State<HomeCards> {
   @override
   void initState() {
     super.initState();
-
+    SharedPreferences.getInstance().then((SharedPreferences sp) {
+      sharedPreferences = sp;
+      localClAvgOffline = sharedPreferences.getInt('atc') ?? 0;
+      localTxAvgOffline = sharedPreferences.getInt('att') ?? 0;
+      persist(localClAvgOffline, localTxAvgOffline);
+      setState(() {});
+    });
     mixpanel = MixpanelAnalytics(
       token: dotenv.env['MIXKEY']!,
       userId$: _user$.stream,
@@ -154,6 +170,15 @@ class _HomeCardsState extends State<HomeCards> {
     );
 
     _user$.add(deviceId!);
+  }
+
+  void persist(int? atc, int? att) {
+    setState(() {
+      localClAvgOffline = atc!;
+      localTxAvgOffline = att!;
+    });
+    sharedPreferences.setInt('atc', atc!);
+    sharedPreferences.setInt('att', att!);
   }
 
   @override

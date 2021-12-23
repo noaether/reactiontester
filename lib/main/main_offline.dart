@@ -7,9 +7,6 @@ import '../functions/data_collection_soupmix.dart' as data_collection;
 import '../games/colour_reflexes.dart' as colour_reflexes;
 import '../games/text_reflexes.dart' as text_reflexes;
 
-int? localClAvgOffline;
-int? localTxAvgOffline;
-
 class MainOffline extends StatelessWidget {
   const MainOffline({Key? key}) : super(key: key);
 
@@ -138,10 +135,9 @@ class MainOffline extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                            child: localClAvgOffline != 0
+                            child: main.localClAvgOffline != 0
                                 ? Text(
-                                    'Average time taken: $localClAvgOffline ms',
+                                    'Average time taken: ${main.localClAvgOffline} ms',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontFamily:
@@ -289,9 +285,9 @@ class MainOffline extends StatelessWidget {
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                            child: localTxAvgOffline != 0
+                            child: main.localTxAvgOffline != 0
                                 ? Text(
-                                    'Average time taken: $localTxAvgOffline ms',
+                                    'Average time taken: ${main.localTxAvgOffline} ms',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontFamily:
