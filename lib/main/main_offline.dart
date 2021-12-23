@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../main.dart' as main;
 import '../functions/misc.dart' as misc;
-import '../functions/data_collection.dart' as data_collection;
+import '../functions/data_collection_soupmix.dart' as data_collection;
 import '../games/colour_reflexes.dart' as colour_reflexes;
 import '../games/text_reflexes.dart' as text_reflexes;
 

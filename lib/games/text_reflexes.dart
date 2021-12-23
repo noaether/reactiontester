@@ -1,6 +1,5 @@
 // ignore_for_file: camel_case_types
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,7 +12,7 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import '../main.dart' as main;
 import '../main/main_online.dart' as main_online;
 import '../main/main_offline.dart' as main_offline;
-import '../functions/data_collection.dart' as data_collection;
+import '../functions/data_collection_soupmix.dart' as data_collection;
 
 Text? randomText1;
 Text? randomText4;
@@ -49,9 +48,6 @@ class textReflexes extends StatefulWidget {
 }
 
 class textReflexesState extends State<textReflexes> {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  CollectionReference users = FirebaseFirestore.instance.collection('users');
-
   late double deviceWidth;
   late double deviceHeight;
   // Variables that might be affected

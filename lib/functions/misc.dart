@@ -1,6 +1,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:platform_device_id/platform_device_id.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
@@ -35,6 +36,8 @@ Future<String?> getId() async {
     } else if (UniversalPlatform.isLinux) {
       LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
       return linuxInfo.machineId;
+    } else if (UniversalPlatform.isWindows) {
+      return await PlatformDeviceId.getDeviceId;
     }
   }
 }
@@ -54,6 +57,8 @@ Future<String?> getDeviceType() async {
     } else if (UniversalPlatform.isLinux) {
       LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
       return linuxInfo.prettyName;
+    } else if (UniversalPlatform.isWindows) {
+      return 'Windows';
     }
   }
 }
@@ -74,6 +79,24 @@ Future<String?> getDeviceVersion() async {
     } else if (UniversalPlatform.isLinux) {
       LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
       return linuxInfo.version;
+    } else if (UniversalPlatform.isWindows) {
+      return 'Win10+';
+    }
+  }
+}
+
+Future<String?> getDeviceOs() async {
+  if (UniversalPlatform.isWeb) {
+    return 'Web';
+  } else {
+    if (UniversalPlatform.isAndroid) {
+      return 'Android';
+    } else if (UniversalPlatform.isIOS) {
+      return 'IOS';
+    } else if (UniversalPlatform.isLinux) {
+      return 'Linux';
+    } else if (UniversalPlatform.isWindows) {
+      return 'Windows';
     }
   }
 }

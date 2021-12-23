@@ -1,13 +1,15 @@
 // ignore_for_file: camel_case_types
 
 // Internal files
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
+import 'dart:async';
+
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import './main/main_offline.dart' as main_offline;
 import './main/main_online.dart' as main_online;
-import './functions/data_collection.dart' as data_collection;
-import './functions/firebase_options.dart' as firebase_options;
+import './functions/misc.dart' as misc;
+import 'functions/data_collection_soupmix.dart' as data_collection_soupmix;
 
 // Flutter
 import 'package:flutter/material.dart';
@@ -19,8 +21,7 @@ import 'dart:convert';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 // Analytics
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:mixpanel_analytics/mixpanel_analytics.dart';
 import 'package:crypto/crypto.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -33,9 +34,10 @@ import 'package:http/http.dart' as http;
 // Web Alternatives
 import 'package:universal_platform/universal_platform.dart';
 
+// ParsePlatform
+
 // Core
 import 'dart:core';
-
 
 Key scaffoldKeyOnline = GlobalKey<ScaffoldState>();
 Key scaffoldKeyOffline = GlobalKey<ScaffoldState>();
@@ -47,12 +49,17 @@ final FlexColorScheme dark = FlexColorScheme.dark(scheme: FlexScheme.brandBlue);
 final ThemeData lightTheme = light.toTheme;
 final ThemeData darkTheme = dark.toTheme;
 
+late SupabaseClient supabase;
+late String? deviceId;
+MixpanelAnalytics? mixpanel;
+
 String installedVersion = '1.2.2.2-2';
 String? webVersion;
 
 bool willInteract = false;
 
 void main() async {
+  await dotenv.load(fileName: '.env');
   int startTime = DateTime.now().millisecondsSinceEpoch;
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
@@ -64,109 +71,35 @@ void main() async {
   });
 
   WidgetsFlutterBinding.ensureInitialized();
-  if (UniversalPlatform.isDesktop) {
-    // PLATFORM : DESKTOP
-    if (kDebugMode) {
-      print(
-        'Current Platform : Desktop; Will NOT send : FireStore, Crashalytics and Analytics',
-      );
-    }
-    willInteract = false;
-  } else {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult != ConnectivityResult.none) {
-      // PLATFORM : NOT KNOWN YET
-      // NETWORK : CONNECTED
-      willInteract = true;
-    } else {
-      // PLATFORM : NOT KNOWN YET
-      // NETWORK : NOT CONNECTED
-    }
-    if (UniversalPlatform.isAndroid &&
-        connectivityResult != ConnectivityResult.none) {
-      // PLATFORM : ANDROID WITH INTERNET
-      willInteract = true;
 
-      if (kDebugMode) {
-        print(
-          'Current Platform : Android; Will send : FireStore, Crashalytics and Analytics',
-        );
-      }
-      willInteract = true;
-      // SUPPORTS : FireStore, Crashalytics and Analytics
-      await Firebase.initializeApp(
-        options: firebase_options.DefaultFirebaseOptions.android,
-      );
-      // CRASHALYTICS :
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-      String? userID = await _getId();
-      FirebaseCrashlytics.instance.setUserIdentifier(userID!);
-      // FIRESTORE :
-      FirebaseFirestore.instance.settings = const Settings(
-        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-        persistenceEnabled: true,
-      );
-
-      bool wait = await data_collection.openAppAnalytics();
-      main_online.localClAvgOnline = await data_collection.readColourData();
-      main_online.localTxAvgOnline = await data_collection.readTextData();
-      main_offline.localClAvgOffline = await data_collection.readColourData();
-      main_offline.localTxAvgOffline = await data_collection.readTextData();
-      // ANALYTICS :
-      var url = Uri.parse(
-        'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version',
-      );
-      final response =
-          await http.get(url, headers: {'Accept': 'application/json'});
-      webVersion = response.body;
-      FirebaseAnalytics.instance.app.setAutomaticDataCollectionEnabled(true);
-      FirebaseAnalytics.instance.app
-          .setAutomaticResourceManagementEnabled(true);
-    } else if (UniversalPlatform.isIOS &&
-        connectivityResult != ConnectivityResult.none) {
-      // PLATFORM : IOS WITH INTERNET
-      // i dont have a firebase project for ios yet, dis just so i can modify my code in the future
-    } else if (UniversalPlatform.isWeb &&
-        connectivityResult != ConnectivityResult.none) {
-      // PLATFORM : WEB
-      willInteract = true;
-
-      if (kDebugMode) {
-        print(
-          'Current Platform : Web; Will send : FireStore and Analytics; Will not send Crashalytics',
-        );
-      }
-      willInteract = true;
-      // SUPPORTS : FireStore and Analytics
-      await Firebase.initializeApp(
-        options: firebase_options.DefaultFirebaseOptions.web,
-      );
-      // FIRESTORE :
-      // ANALYTICS :
-      FirebaseAnalytics.instance.app.setAutomaticDataCollectionEnabled(true);
-      FirebaseAnalytics.instance.app
-          .setAutomaticResourceManagementEnabled(true);
-      data_collection.openAppAnalytics();
-    } else {
-      // PLATFORM : UNKNOWN
-      if (kDebugMode) {
-        print(
-          'Current Platform : Unknown; Will operate in offline mode, with persistence',
-        );
-      }
-      await Firebase.initializeApp(
-        options: firebase_options.DefaultFirebaseOptions.currentPlatform,
-      );
-      await FirebaseFirestore.instance.disableNetwork();
-      FirebaseFirestore.instance.settings = const Settings(
-        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-        persistenceEnabled: true,
-      );
-    }
+  var connectivityResult = await (Connectivity().checkConnectivity());
+  if (connectivityResult != ConnectivityResult.none) {
+    // NETWORK : TRUE
+    willInteract = true;
   }
+
+  supabase = SupabaseClient(
+    dotenv.env['SOUPURL']!,
+    dotenv.env['SOUPKEY']!,
+  );
+
+  deviceId = await misc.getId();
+  data_collection_soupmix.createUserData();
 
   int endTime = DateTime.now().millisecondsSinceEpoch;
   int loadTime = endTime - startTime;
+
+  main_online.localClAvgOnline = await data_collection_soupmix.readColourData();
+  main_online.localTxAvgOnline = await data_collection_soupmix.readTextData();
+  main_offline.localClAvgOffline =
+      await data_collection_soupmix.readColourData();
+  main_offline.localTxAvgOffline = await data_collection_soupmix.readTextData();
+
+  var url = Uri.parse(
+    'https://raw.githubusercontent.com/Pocoyo-dev/reactiontester/main/version',
+  );
+  final response = await http.get(url, headers: {'Accept': 'application/json'});
+  webVersion = response.body;
 
   runApp(const materialHomePage());
   if (kDebugMode) {
@@ -197,8 +130,41 @@ class HomeCards extends StatefulWidget {
 }
 
 class _HomeCardsState extends State<HomeCards> {
+  final _user$ = StreamController<String>.broadcast();
+  // ignore: unused_field
+  Object? _error;
+  // ignore: unused_field
+  String? _success;
+
+  @override
+  void initState() {
+    super.initState();
+
+    mixpanel = MixpanelAnalytics(
+      token: dotenv.env['MIXKEY']!,
+      userId$: _user$.stream,
+      verbose: true,
+      useIp: true,
+      shouldAnonymize: false,
+      shaFn: (value) => value,
+      onError: (e) => setState(() {
+        _error = e;
+        _success = null;
+      }),
+    );
+
+    _user$.add(deviceId!);
+  }
+
+  @override
+  void dispose() {
+    _user$.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    data_collection_soupmix.openAppAnalytics();
     if (webVersion != null) {
       return const main_online.MainOnline();
     } else {
@@ -226,6 +192,7 @@ Route createRoute(Widget widget) {
   );
 }
 
+// ignore: unused_element
 Future<String?> _getId() async {
   var deviceInfo = DeviceInfoPlugin();
   if (UniversalPlatform.isWeb) {

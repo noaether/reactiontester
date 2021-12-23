@@ -11,7 +11,7 @@ import 'dart:math';
 import '../main.dart' as main;
 import '../main/main_offline.dart' as main_offline;
 import '../main/main_online.dart' as main_online;
-import '../functions/data_collection.dart' as data_collection;
+import '../functions/data_collection_soupmix.dart' as data_collection;
 
 Color? randomColour1 = Colors.transparent;
 

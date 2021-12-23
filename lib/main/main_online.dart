@@ -7,7 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../main.dart' as main;
 import '../functions/misc.dart' as misc;
 
-import '../functions/data_collection.dart' as data_collection;
+import '../functions/data_collection_soupmix.dart' as data_collection;
 import '../games/colour_reflexes.dart' as colour_reflexes;
 import '../games/text_reflexes.dart' as text_reflexes;
 import '../update.dart' as update;
@@ -340,7 +340,7 @@ class MainOnline extends StatelessWidget {
                             padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                             child: localTxAvgOnline != 0
                                 ? Text(
-                                    'Average time taken: $localTxAvgOnline ms (local)',
+                                    'Average time taken: $localTxAvgOnline ms',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontFamily:
@@ -351,7 +351,7 @@ class MainOnline extends StatelessWidget {
                                   )
                                 : data_collection.att != 0
                                     ? Text(
-                                        'Average time taken: ${data_collection.att} ms (data collection)',
+                                        'Average time taken: ${data_collection.att} ms',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontFamily:
