@@ -272,14 +272,35 @@ class textBox extends StatelessWidget {
           children: [
             Container(
               child: FittedBox(
-                fit: BoxFit.fill,
-                child: Text(
-                  'The quick brown\r\nfox jumps over\r\nthe lazy dog',
-                  style: TextStyle(
-                    fontFamily: buttonFonts[0]!.style!.fontFamily,
-                    fontSize: 96,
-                  ),
-                  textAlign: TextAlign.center,
+                fit: BoxFit.fitWidth,
+                clipBehavior: Clip.hardEdge,
+                child: Column(
+                  children: [
+                    Text(
+                      'The quick brown',
+                      style: TextStyle(
+                        fontFamily: buttonFonts[0]!.style!.fontFamily,
+                        fontSize: 96,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      'fox jumps over',
+                      style: TextStyle(
+                        fontFamily: buttonFonts[0]!.style!.fontFamily,
+                        fontSize: 96,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      'the lazy dog',
+                      style: TextStyle(
+                        fontFamily: buttonFonts[0]!.style!.fontFamily,
+                        fontSize: 96,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
               alignment: Alignment.center,

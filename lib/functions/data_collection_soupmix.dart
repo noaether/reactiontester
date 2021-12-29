@@ -65,7 +65,7 @@ void saveDataColour(int cAvg, bool isBw) async {
       },
     ).execute();
 
-    if (res.status == 200) {
+    if (res.hasError == true && res.data) {
       if (kDebugMode) {
         print(
           'User Data Updated',

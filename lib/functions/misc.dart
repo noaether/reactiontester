@@ -1,4 +1,5 @@
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:platform_device_id/platform_device_id.dart';
@@ -97,6 +98,31 @@ Future<String?> getDeviceOs() async {
       return 'Linux';
     } else if (UniversalPlatform.isWindows) {
       return 'Windows';
+    }
+  }
+}
+
+void printBatch(List<dynamic> elements) {
+  List<String> listLenght = [];
+  for (var i = 0; i < elements.length; i++) {
+    listLenght.add(elements[i].toString());
+  }
+  listLenght.sort();
+  int longestElement = listLenght.first.length;
+  print(longestElement);
+  for (var i = 0; i < elements.length; i++) {
+    if (i == 0) {
+      if (kDebugMode) {
+        print('╔ ' + elements[i].toString().padRight(longestElement) + ' ╗');
+      }
+    } else if (i == elements.length - 1) {
+      if (kDebugMode) {
+        print('╚ ' + elements[i].toString().padRight(longestElement) + ' ╝');
+      }
+    } else {
+      if (kDebugMode) {
+        print('╠ ' + elements[i].toString().padRight(longestElement) + ' ╣');
+      }
     }
   }
 }

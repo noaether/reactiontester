@@ -11,12 +11,19 @@ import '../functions/data_collection_soupmix.dart' as data_collection;
 import '../games/colour_reflexes.dart' as colour_reflexes;
 import '../games/text_reflexes.dart' as text_reflexes;
 import '../update.dart' as update;
+import '../keys.dart' as keys;
 
 late int localClAvgOnline;
 late int localTxAvgOnline;
 
 class MainOnline extends StatelessWidget {
-  const MainOnline({Key? key}) : super(key: key);
+  const MainOnline({
+    Key? key,
+    required this.isLast,
+    required this.isTest,
+  }) : super(key: key);
+  final bool isTest;
+  final bool isLast;
 
   Route<Object?> dialogBuilder(
       BuildContext context,
@@ -35,31 +42,31 @@ class MainOnline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<int> installedVersionList = [];
-    installedVersionList.addAll(utf8.encode(main.installedVersion));
-    List<int> webVersionList = [];
-    webVersionList.addAll(utf8.encode(main.webVersion!));
-    webVersionList.removeLast();
-    String webVersionText = utf8.decode(webVersionList).toString();
-    String installedVersionText = utf8.decode(installedVersionList).toString();
     return Scaffold(
+      key: keys.MainOnlineKeys().Scaffold,
       appBar: AppBar(
-        title: const Text(
+        key: keys.MainOnlineKeys().ScaffoldAppbar,
+        title: Text(
           'ReactionTester',
           textAlign: TextAlign.justify,
+          key: keys.MainOnlineKeys().ScaffoldAppbarText,
         ),
         backgroundColor:
             MediaQuery.of(context).platformBrightness == Brightness.light
                 ? FlexColor.sharkLightPrimary
                 : FlexColor.brandBlueDarkPrimary,
-        leading: webVersionText != installedVersionText
+        leading: isLast == false
             ? IconButton(
                 alignment: Alignment.center,
                 tooltip: 'Upgrade is available !',
                 onPressed: () {
                   Navigator.of(context).restorablePush(dialogBuilder);
                 },
-                icon: const Icon(Icons.upgrade),
+                key: keys.MainOnlineKeys().ScaffoldAppbarIconbutton,
+                icon: Icon(
+                  Icons.upgrade,
+                  key: keys.MainOnlineKeys().ScaffoldAppbarIconbuttonIcon,
+                ),
               )
             : null,
       ),
@@ -76,9 +83,11 @@ class MainOnline extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: ListView(
+                addAutomaticKeepAlives: true,
                 scrollDirection: Axis.horizontal,
                 children: [
                   InkWell(
+                    key: keys.MainOnlineKeys().Card1ListView1,
                     // First page
                     onTap: () {
                       data_collection.openColourAnalytics();
@@ -137,6 +146,7 @@ class MainOnline extends StatelessWidget {
                   //
                   //
                   Container(
+                    key: keys.MainOnlineKeys().Card2ListView1,
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width - 10,
                     child: Column(
@@ -169,6 +179,7 @@ class MainOnline extends StatelessWidget {
                     ),
                   ),
                   Container(
+                    key: keys.MainOnlineKeys().Card3ListView1,
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.width,
@@ -177,9 +188,9 @@ class MainOnline extends StatelessWidget {
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                            child: localClAvgOnline != 0
-                                ? Text(
-                                    'Average time taken: $localClAvgOnline ms',
+                            child: isTest == true
+                                ? SelectableText(
+                                    'Average time taken: 6713199 ms',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontFamily:
@@ -188,9 +199,9 @@ class MainOnline extends StatelessWidget {
                                       fontSize: 20,
                                     ),
                                   )
-                                : data_collection.atc != 0
-                                    ? Text(
-                                        'Average time taken: ${data_collection.atc} ms',
+                                : localClAvgOnline != 0
+                                    ? SelectableText(
+                                        'Average time taken: $localClAvgOnline ms',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontFamily:
@@ -199,7 +210,7 @@ class MainOnline extends StatelessWidget {
                                           fontSize: 20,
                                         ),
                                       )
-                                    : Text(
+                                    : SelectableText(
                                         'You haven\'t played this game yet!',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
@@ -241,8 +252,10 @@ class MainOnline extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 children: [
                   InkWell(
+                    key: keys.MainOnlineKeys().Card1ListView2,
                     // First page
                     onTap: () {
+                      data_collection.openTextAnalytics();
                       Navigator.of(context).pushAndRemoveUntil(
                         main.createRoute(
                           const text_reflexes.textReflexes(),
@@ -298,6 +311,7 @@ class MainOnline extends StatelessWidget {
                   //
                   //
                   Container(
+                    key: keys.MainOnlineKeys().Card2ListView2,
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width - 10,
                     child: Column(
@@ -330,6 +344,7 @@ class MainOnline extends StatelessWidget {
                     ),
                   ),
                   Container(
+                    key: keys.MainOnlineKeys().Card3ListView2,
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.width,
@@ -337,10 +352,9 @@ class MainOnline extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                            child: localTxAvgOnline != 0
-                                ? Text(
-                                    'Average time taken: $localTxAvgOnline ms',
+                            child: isTest
+                                ? SelectableText(
+                                    'Average time taken: 6447474 ms',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontFamily:
@@ -349,9 +363,9 @@ class MainOnline extends StatelessWidget {
                                       fontSize: 20,
                                     ),
                                   )
-                                : data_collection.att != 0
-                                    ? Text(
-                                        'Average time taken: ${data_collection.att} ms',
+                                : localTxAvgOnline != 0
+                                    ? SelectableText(
+                                        'Average time taken: $localTxAvgOnline ms',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontFamily:
@@ -360,7 +374,7 @@ class MainOnline extends StatelessWidget {
                                           fontSize: 20,
                                         ),
                                       )
-                                    : Text(
+                                    : SelectableText(
                                         'You haven\'t played this game yet!',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
@@ -399,9 +413,11 @@ class MainOnline extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: ListView(
+                addAutomaticKeepAlives: true,
                 scrollDirection: Axis.horizontal,
                 children: [
                   InkWell(
+                    key: keys.MainOnlineKeys().Card1ListView3,
                     splashColor: Colors.blue.withAlpha(30),
                     onTap: () {
                       showAboutDialog(
@@ -427,6 +443,7 @@ class MainOnline extends StatelessWidget {
                     ),
                   ),
                   InkWell(
+                    key: keys.MainOnlineKeys().Card2ListView3,
                     splashColor: Colors.blue.withAlpha(30),
                     onTap: () {
                       misc.launchURLMisc('http://pocoyo.rf.gd');
@@ -448,23 +465,10 @@ class MainOnline extends StatelessWidget {
                     ),
                   ),
                   InkWell(
+                    key: keys.MainOnlineKeys().Card3ListView3,
                     splashColor: Colors.blue.withAlpha(30),
                     onTap: () {
-                      if (kDebugMode) {
-                        print('Text 1 : $installedVersionList');
-                      }
-                      if (kDebugMode) {
-                        print('Text 2 : $webVersionList');
-                      }
-
-                      String webVersionText =
-                          utf8.decode(webVersionList).toString();
-                      String installedVersionText =
-                          utf8.decode(installedVersionList).toString();
-
-                      if (webVersionText != installedVersionText) {
-                        Navigator.of(context).restorablePush(dialogBuilder);
-                      }
+                      Navigator.of(context).restorablePush(dialogBuilder);
                     },
                     child: Container(
                       alignment: Alignment.center,

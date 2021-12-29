@@ -10,6 +10,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import './main/main_offline.dart' as main_offline;
 import './main/main_online.dart' as main_online;
 import './functions/misc.dart' as misc;
+import './keys.dart' as keys;
 import 'functions/data_collection_soupmix.dart' as data_collection_soupmix;
 
 // Flutter
@@ -60,6 +61,7 @@ String installedVersion = '1.2.2.2-2';
 String? webVersion;
 
 bool willInteract = false;
+List<dynamic> startPrint = [];
 
 void main() async {
   await dotenv.load(fileName: '.env');
@@ -123,6 +125,7 @@ class materialHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: const HomeCards(),
+      key: keys.MainKeys().MaterialApp,
       title: 'ReactionTester',
       theme: lightTheme,
       darkTheme: darkTheme,
@@ -145,10 +148,34 @@ class _HomeCardsState extends State<HomeCards> {
   Object? _error;
   // ignore: unused_field
   String? _success;
+  bool isLast = true;
 
   @override
   void initState() {
     super.initState();
+    if (willInteract) {
+      List<int> instToCompare = [];
+      instToCompare.addAll(utf8.encode(installedVersion));
+      List<int> webToCompare = [];
+      webToCompare.addAll(utf8.encode(webVersion!));
+      webToCompare.removeLast();
+      isLast = utf8.decode(webToCompare) == utf8.decode(instToCompare);
+      misc.printBatch([instToCompare, webToCompare, isLast]);
+      mixpanel = MixpanelAnalytics(
+        token: dotenv.env['MIXKEY']!,
+        userId$: _user$.stream,
+        verbose: true,
+        useIp: true,
+        shouldAnonymize: false,
+        shaFn: (value) => value,
+        onError: (e) => setState(() {
+          _error = e;
+          _success = null;
+        }),
+      );
+
+      _user$.add(deviceId!);
+    }
     SharedPreferences.getInstance().then((SharedPreferences sp) {
       sharedPreferences = sp;
       localClAvgOffline = sharedPreferences.getInt('atc') ?? 0;
@@ -156,20 +183,6 @@ class _HomeCardsState extends State<HomeCards> {
       persist(localClAvgOffline, localTxAvgOffline);
       setState(() {});
     });
-    mixpanel = MixpanelAnalytics(
-      token: dotenv.env['MIXKEY']!,
-      userId$: _user$.stream,
-      verbose: true,
-      useIp: true,
-      shouldAnonymize: false,
-      shaFn: (value) => value,
-      onError: (e) => setState(() {
-        _error = e;
-        _success = null;
-      }),
-    );
-
-    _user$.add(deviceId!);
   }
 
   void persist(int? atc, int? att) {
@@ -183,17 +196,22 @@ class _HomeCardsState extends State<HomeCards> {
 
   @override
   void dispose() {
-    _user$.close();
+    if (willInteract) {
+      _user$.close();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    data_collection_soupmix.openAppAnalytics();
     if (webVersion != null) {
-      return const main_online.MainOnline();
+      data_collection_soupmix.openAppAnalytics();
+      return main_online.MainOnline(
+        isTest: true,
+        isLast: isLast,
+      );
     } else {
-      return const main_offline.MainOffline();
+      return const main_offline.MainOffline(isTest: false);
     }
   }
 }

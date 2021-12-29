@@ -8,10 +8,21 @@ import '../games/colour_reflexes.dart' as colour_reflexes;
 import '../games/text_reflexes.dart' as text_reflexes;
 
 class MainOffline extends StatelessWidget {
-  const MainOffline({Key? key}) : super(key: key);
+  const MainOffline({
+    Key? key,
+    required this.isTest,
+  }) : super(key: key);
+  final bool isTest;
+  void starttests() {
+    if (isTest) {
+      main.localClAvgOffline = 6713199;
+      main.localTxAvgOffline = 6447474;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    starttests();
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -135,27 +146,28 @@ class MainOffline extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Container(
-                            child: main.localClAvgOffline != 0
-                                ? Text(
-                                    'Average time taken: ${main.localClAvgOffline} ms',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontFamily:
-                                          (GoogleFonts.lato()).fontFamily,
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                    ),
-                                  )
-                                : Text(
-                                    'You haven\'t played this game yet!',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontFamily:
-                                          (GoogleFonts.lato()).fontFamily,
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                    ),
-                                  ),
+                            child:
+                                main.localClAvgOffline != 0 && isTest == false
+                                    ? Text(
+                                        'Average time taken: ${main.localClAvgOffline} ms',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontFamily:
+                                              (GoogleFonts.lato()).fontFamily,
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                        ),
+                                      )
+                                    : Text(
+                                        'You haven\'t played this game yet!',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontFamily:
+                                              (GoogleFonts.lato()).fontFamily,
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                        ),
+                                      ),
                           ),
                         ),
                         Expanded(
