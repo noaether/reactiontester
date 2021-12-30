@@ -8,7 +8,6 @@ import '../functions/data_collection_soupmix.dart' as data_collection;
 import '../games/colour_reflexes.dart' as colour_reflexes;
 import '../games/text_reflexes.dart' as text_reflexes;
 import '../update.dart' as update;
-import '../keys.dart' as keys;
 
 late int localClAvgOnline;
 late int localTxAvgOnline;
@@ -208,13 +207,13 @@ class MainOnline extends StatelessWidget {
                                       ),
                           ),
                         ),
-                        Expanded(
+                        const Expanded(
                           flex: 5,
-                          child: Image(
-                            image: const AssetImage('thumbnails/crflxthb.png'),
-                            width: MediaQuery.of(context).size.width - 100,
-                            height: (MediaQuery.of(context).size.width - 100) *
-                                0.47760,
+                          child: SizedBox(
+                            child: Image(
+                              image: AssetImage('thumbnails/crflxthb.png'),
+                              fit: BoxFit.fill,
+                            ),
                           ),
                         ),
                       ],
@@ -335,7 +334,8 @@ class MainOnline extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Container(
-                            child: isTest
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                            child: isTest == true
                                 ? SelectableText(
                                     'Average time taken: 6447474 ms',
                                     textAlign: TextAlign.center,
@@ -345,7 +345,7 @@ class MainOnline extends StatelessWidget {
                                       fontSize: 20,
                                     ),
                                   )
-                                : localTxAvgOnline != 0
+                                : localClAvgOnline != 0
                                     ? SelectableText(
                                         'Average time taken: $localTxAvgOnline ms',
                                         textAlign: TextAlign.center,
@@ -366,13 +366,13 @@ class MainOnline extends StatelessWidget {
                                       ),
                           ),
                         ),
-                        Expanded(
+                        const Expanded(
                           flex: 5,
-                          child: Image(
-                            image: const AssetImage('thumbnails/trflxthb.png'),
-                            width: MediaQuery.of(context).size.width - 100,
-                            height: (MediaQuery.of(context).size.width - 100) *
-                                0.47760,
+                          child: FittedBox(
+                            child: Image(
+                              image: AssetImage('thumbnails/trflxthb.png'),
+                            ),
+                            fit: BoxFit.fill,
                           ),
                         ),
                       ],

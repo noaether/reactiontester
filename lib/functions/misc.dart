@@ -109,7 +109,6 @@ void printBatch(List<dynamic> elements) {
   }
   listLenght.sort();
   int longestElement = listLenght.first.length;
-  print(longestElement);
   for (var i = 0; i < elements.length; i++) {
     if (i == 0) {
       if (kDebugMode) {

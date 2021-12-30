@@ -62,48 +62,6 @@ void main() {
   );
 
   testWidgets(
-    'Does Main Online UI Load (Keys)',
-    (WidgetTester tester) async {
-      int cAvgTest = 6713199; // "foo" to hex to decimal
-      int tAvgTest = 6447474; // "bar" to hex to decimal
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: main_online.MainOnline(
-            isTest: true,
-            isLast: true,
-          ),
-        ),
-      );
-
-      List<Key> expectedKeys = [
-        keys.MainOnlineKeys().Scaffold,
-        keys.MainOnlineKeys().ScaffoldAppbar,
-        keys.MainOnlineKeys().ScaffoldAppbarText,
-        keys.MainOnlineKeys().ScaffoldAppbarIconbutton,
-        keys.MainOnlineKeys().ScaffoldAppbarIconbuttonIcon,
-        keys.MainOnlineKeys().Card1ListView1,
-        keys.MainOnlineKeys().Card2ListView1,
-        keys.MainOnlineKeys().Card3ListView1,
-        keys.MainOnlineKeys().Card1ListView2,
-        keys.MainOnlineKeys().Card2ListView2,
-        keys.MainOnlineKeys().Card3ListView2,
-        keys.MainOnlineKeys().Card1ListView3,
-        keys.MainOnlineKeys().Card2ListView3,
-        keys.MainOnlineKeys().Card3ListView3,
-      ];
-      for (Key expectedKey in expectedKeys) {
-        expectLater(
-          find.byKey(
-            expectedKey,
-            skipOffstage: false,
-          ),
-          findsOneWidget,
-        );
-      }
-    },
-  );
-
-  testWidgets(
     'Does Main Offline UI Load (Text)',
     (WidgetTester tester) async {
       int cAvgTest = 6713199; // "foo" to hex to decimal
@@ -136,6 +94,71 @@ void main() {
           find.text(
             expectedText,
             findRichText: true,
+            skipOffstage: false,
+          ),
+          findsWidgets,
+        );
+      }
+    },
+  );
+
+  testWidgets(
+    'Does Colour Matching UI Load (Buttons)',
+    (WidgetTester tester) async {
+      int cAvgTest = 6713199; // "foo" to hex to decimal
+      int tAvgTest = 6447474; // "bar" to hex to decimal
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: colour_reflexes.colourReflexes(),
+        ),
+      );
+
+      List<Type> expectedWidgets = [
+        FloatingActionButton,
+        FloatingActionButton,
+        FloatingActionButton,
+        IconButton,
+      ];
+      List<IconData> expectedIcons = [
+        Icons.add,
+        Icons.add,
+        Icons.add,
+        Icons.monochrome_photos,
+      ];
+
+      for (var i = 0; i < expectedWidgets.length; i++) {
+        expectLater(
+          find.widgetWithIcon(
+            expectedWidgets[i],
+            expectedIcons[i],
+          ),
+          findsWidgets,
+        );
+      }
+    },
+  );
+
+  testWidgets(
+    'Does Colour Matching UI Load (Tooltips)',
+    (WidgetTester tester) async {
+      int cAvgTest = 6713199; // "foo" to hex to decimal
+      int tAvgTest = 6447474; // "bar" to hex to decimal
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: colour_reflexes.colourReflexes(),
+        ),
+      );
+
+      List<String> expectedWidgets = [
+        'Button 1',
+        'Button 2',
+        'Button 3',
+        'Toggle b/w',
+      ];
+      for (String expectedTooltips in expectedWidgets) {
+        expectLater(
+          find.byTooltip(
+            expectedTooltips,
             skipOffstage: false,
           ),
           findsWidgets,

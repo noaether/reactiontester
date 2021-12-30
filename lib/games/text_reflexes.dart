@@ -210,7 +210,6 @@ class textReflexesState extends State<textReflexes> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             FloatingActionButton(
-              heroTag: 'bitch',
               onPressed: () {
                 if (randomButton == 0) {
                   _correctAnswer(context);
@@ -225,7 +224,6 @@ class textReflexesState extends State<textReflexes> {
             ), // First Button
 
             FloatingActionButton(
-              heroTag: 'asshole',
               onPressed: () {
                 if (randomButton == 1) {
                   _correctAnswer(context);
@@ -240,7 +238,6 @@ class textReflexesState extends State<textReflexes> {
             ), // Second Button
 
             FloatingActionButton(
-              heroTag: 'colourblind',
               onPressed: () {
                 if (randomButton == 2) {
                   _correctAnswer(context);
@@ -280,23 +277,25 @@ class textBox extends StatelessWidget {
                       'The quick brown',
                       style: TextStyle(
                         fontFamily: buttonFonts[0]!.style!.fontFamily,
-                        fontSize: 96,
+                        fontSize: MediaQuery.of(context).size.height * 0.2,
                       ),
                       textAlign: TextAlign.center,
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       'fox jumps over',
                       style: TextStyle(
                         fontFamily: buttonFonts[0]!.style!.fontFamily,
-                        fontSize: 96,
+                        fontSize: MediaQuery.of(context).size.height * 0.2,
                       ),
                       textAlign: TextAlign.center,
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       'the lazy dog',
                       style: TextStyle(
                         fontFamily: buttonFonts[0]!.style!.fontFamily,
-                        fontSize: 96,
+                        fontSize: MediaQuery.of(context).size.height * 0.2,
                       ),
                       textAlign: TextAlign.center,
                     ),

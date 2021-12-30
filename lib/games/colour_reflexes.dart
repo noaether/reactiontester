@@ -264,7 +264,6 @@ class colourReflexesState extends State<colourReflexes> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             FloatingActionButton(
-              heroTag: 'bitch',
               onPressed: () {
                 if (randomButton == 0) {
                   _correctAnswer(context);
@@ -273,6 +272,7 @@ class colourReflexesState extends State<colourReflexes> {
                   _wrongAnswer(context);
                 }
               },
+              tooltip: 'Button 1',
               backgroundColor:
                   randomButton == 0 ? buttonColours[0] : buttonColours[1],
               child: const Icon(
@@ -282,7 +282,6 @@ class colourReflexesState extends State<colourReflexes> {
             ), // First Button
 
             FloatingActionButton(
-              heroTag: 'asshole',
               onPressed: () {
                 if (randomButton == 1) {
                   _correctAnswer(context);
@@ -291,6 +290,7 @@ class colourReflexesState extends State<colourReflexes> {
                   _wrongAnswer(context);
                 }
               },
+              tooltip: 'Button 2',
               backgroundColor:
                   randomButton == 1 ? buttonColours[0] : buttonColours[2],
               child: const Icon(
@@ -300,7 +300,6 @@ class colourReflexesState extends State<colourReflexes> {
             ), // Second Button
 
             FloatingActionButton(
-              heroTag: 'colourblind',
               onPressed: () {
                 if (randomButton == 2) {
                   _correctAnswer(context);
@@ -309,6 +308,7 @@ class colourReflexesState extends State<colourReflexes> {
                   _wrongAnswer(context);
                 }
               },
+              tooltip: 'Button 3',
               backgroundColor:
                   randomButton == 2 ? buttonColours[0] : buttonColours[3],
               child: const Icon(

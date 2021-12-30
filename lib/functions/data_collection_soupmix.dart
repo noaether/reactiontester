@@ -107,7 +107,7 @@ void saveDataText(int tAvg) async {
       },
     ).execute();
 
-    if (res.status == 200) {
+    if (res.hasError == false) {
       if (kDebugMode) {
         print(
           'User Data Updated',

@@ -42,6 +42,7 @@ dependencies:
   flutter_dotenv: ^5.0.2
   mixpanel_flutter: ^1.4.1
   mixpanel_analytics: ^2.1.1
+  relative_scale: ^2.0.0
 
 
 dev_dependencies:
@@ -63,7 +64,6 @@ flutter:
   assets:
     - google_fonts/
     - thumbnails/
-    - .env
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
