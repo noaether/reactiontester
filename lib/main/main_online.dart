@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:flex_color_scheme/flex_color_scheme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../main.dart' as main;
@@ -43,13 +40,10 @@ class MainOnline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: keys.MainOnlineKeys().Scaffold,
       appBar: AppBar(
-        key: keys.MainOnlineKeys().ScaffoldAppbar,
-        title: Text(
+        title: const Text(
           'ReactionTester',
           textAlign: TextAlign.justify,
-          key: keys.MainOnlineKeys().ScaffoldAppbarText,
         ),
         backgroundColor:
             MediaQuery.of(context).platformBrightness == Brightness.light
@@ -62,10 +56,8 @@ class MainOnline extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).restorablePush(dialogBuilder);
                 },
-                key: keys.MainOnlineKeys().ScaffoldAppbarIconbutton,
-                icon: Icon(
+                icon: const Icon(
                   Icons.upgrade,
-                  key: keys.MainOnlineKeys().ScaffoldAppbarIconbuttonIcon,
                 ),
               )
             : null,
@@ -87,7 +79,6 @@ class MainOnline extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 children: [
                   InkWell(
-                    key: keys.MainOnlineKeys().Card1ListView1,
                     // First page
                     onTap: () {
                       data_collection.openColourAnalytics();
@@ -146,7 +137,6 @@ class MainOnline extends StatelessWidget {
                   //
                   //
                   Container(
-                    key: keys.MainOnlineKeys().Card2ListView1,
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width - 10,
                     child: Column(
@@ -179,7 +169,6 @@ class MainOnline extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    key: keys.MainOnlineKeys().Card3ListView1,
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.width,
@@ -195,7 +184,6 @@ class MainOnline extends StatelessWidget {
                                     style: TextStyle(
                                       fontFamily:
                                           (GoogleFonts.lato()).fontFamily,
-                                      color: Colors.white,
                                       fontSize: 20,
                                     ),
                                   )
@@ -206,7 +194,6 @@ class MainOnline extends StatelessWidget {
                                         style: TextStyle(
                                           fontFamily:
                                               (GoogleFonts.lato()).fontFamily,
-                                          color: Colors.white,
                                           fontSize: 20,
                                         ),
                                       )
@@ -216,7 +203,6 @@ class MainOnline extends StatelessWidget {
                                         style: TextStyle(
                                           fontFamily:
                                               (GoogleFonts.lato()).fontFamily,
-                                          color: Colors.white,
                                           fontSize: 20,
                                         ),
                                       ),
@@ -252,7 +238,6 @@ class MainOnline extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 children: [
                   InkWell(
-                    key: keys.MainOnlineKeys().Card1ListView2,
                     // First page
                     onTap: () {
                       data_collection.openTextAnalytics();
@@ -311,7 +296,6 @@ class MainOnline extends StatelessWidget {
                   //
                   //
                   Container(
-                    key: keys.MainOnlineKeys().Card2ListView2,
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width - 10,
                     child: Column(
@@ -344,7 +328,6 @@ class MainOnline extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    key: keys.MainOnlineKeys().Card3ListView2,
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.width,
@@ -359,7 +342,6 @@ class MainOnline extends StatelessWidget {
                                     style: TextStyle(
                                       fontFamily:
                                           (GoogleFonts.lato()).fontFamily,
-                                      color: Colors.white,
                                       fontSize: 20,
                                     ),
                                   )
@@ -370,7 +352,6 @@ class MainOnline extends StatelessWidget {
                                         style: TextStyle(
                                           fontFamily:
                                               (GoogleFonts.lato()).fontFamily,
-                                          color: Colors.white,
                                           fontSize: 20,
                                         ),
                                       )
@@ -380,7 +361,6 @@ class MainOnline extends StatelessWidget {
                                         style: TextStyle(
                                           fontFamily:
                                               (GoogleFonts.lato()).fontFamily,
-                                          color: Colors.white,
                                           fontSize: 20,
                                         ),
                                       ),
@@ -417,7 +397,6 @@ class MainOnline extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 children: [
                   InkWell(
-                    key: keys.MainOnlineKeys().Card1ListView3,
                     splashColor: Colors.blue.withAlpha(30),
                     onTap: () {
                       showAboutDialog(
@@ -443,7 +422,6 @@ class MainOnline extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    key: keys.MainOnlineKeys().Card2ListView3,
                     splashColor: Colors.blue.withAlpha(30),
                     onTap: () {
                       misc.launchURLMisc('http://pocoyo.rf.gd');
@@ -465,7 +443,6 @@ class MainOnline extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    key: keys.MainOnlineKeys().Card3ListView3,
                     splashColor: Colors.blue.withAlpha(30),
                     onTap: () {
                       Navigator.of(context).restorablePush(dialogBuilder);

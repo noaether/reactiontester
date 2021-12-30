@@ -204,10 +204,10 @@ class _HomeCardsState extends State<HomeCards> {
 
   @override
   Widget build(BuildContext context) {
-    if (webVersion != null) {
+    if (willInteract) {
       data_collection_soupmix.openAppAnalytics();
       return main_online.MainOnline(
-        isTest: true,
+        isTest: false,
         isLast: isLast,
       );
     } else {

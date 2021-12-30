@@ -36,6 +36,8 @@ void createUserData() async {
         'deviceId': deviceId!,
         'deviceType': deviceType!,
         'deviceVersion': deviceVersion!,
+        'avgTimeC': 0,
+        'avgTimeT': 0,
       }
     ],
   ).execute();
@@ -142,7 +144,7 @@ Future<int> readColourData() async {
         SharedPreferences? prefs = await SharedPreferences.getInstance();
         return prefs.getInt('atc') ?? 0;
       }
-    } on Exception {
+    } catch (e) {
       return 0;
     }
   } else {

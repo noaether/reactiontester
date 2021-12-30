@@ -154,7 +154,6 @@ class MainOffline extends StatelessWidget {
                                         style: TextStyle(
                                           fontFamily:
                                               (GoogleFonts.lato()).fontFamily,
-                                          color: Colors.white,
                                           fontSize: 20,
                                         ),
                                       )
@@ -164,7 +163,6 @@ class MainOffline extends StatelessWidget {
                                         style: TextStyle(
                                           fontFamily:
                                               (GoogleFonts.lato()).fontFamily,
-                                          color: Colors.white,
                                           fontSize: 20,
                                         ),
                                       ),
@@ -304,7 +302,6 @@ class MainOffline extends StatelessWidget {
                                     style: TextStyle(
                                       fontFamily:
                                           (GoogleFonts.lato()).fontFamily,
-                                      color: Colors.white,
                                       fontSize: 20,
                                     ),
                                   )
@@ -314,7 +311,6 @@ class MainOffline extends StatelessWidget {
                                     style: TextStyle(
                                       fontFamily:
                                           (GoogleFonts.lato()).fontFamily,
-                                      color: Colors.white,
                                       fontSize: 20,
                                     ),
                                   ),
