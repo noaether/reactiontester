@@ -11,6 +11,7 @@ import './main/main_offline.dart' as main_offline;
 import './main/main_online.dart' as main_online;
 import './functions/misc.dart' as misc;
 import './keys.dart' as keys;
+import './secrets.dart' as secrets;
 import 'functions/data_collection_soupmix.dart' as data_collection_soupmix;
 
 // Flutter
@@ -64,7 +65,6 @@ bool willInteract = false;
 List<dynamic> startPrint = [];
 
 void main() async {
-  await dotenv.load(fileName: '.env');
   int startTime = DateTime.now().millisecondsSinceEpoch;
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
@@ -83,8 +83,8 @@ void main() async {
     // NETWORK : TRUE
     willInteract = true;
     supabase = SupabaseClient(
-      dotenv.env['SOUPURL']!,
-      dotenv.env['SOUPKEY']!,
+      secrets.SOUPURL,
+      secrets.SOUPKEY,
     );
     data_collection_soupmix.createUserData();
 
@@ -162,7 +162,7 @@ class _HomeCardsState extends State<HomeCards> {
       isLast = utf8.decode(webToCompare) == utf8.decode(instToCompare);
       misc.printBatch([instToCompare, webToCompare, isLast]);
       mixpanel = MixpanelAnalytics(
-        token: dotenv.env['MIXKEY']!,
+        token: secrets.MIXKEY,
         userId$: _user$.stream,
         verbose: true,
         useIp: true,

@@ -34,3 +34,4 @@ output/ReactionTester.exe
 lib/firebase_options.dart
 lib/functions/firebase_options.dart
 .env*
+lib/secrets.dart
