@@ -25,7 +25,7 @@ jobs:
         channel: 'stable'
     - run: flutter pub get
     - run: flutter test
-    - run: flutter congif --enable-web
+    - run: flutter config --enable-web
     - run: flutter build web
     - name: Deploy to Netlify
       uses: nwtgck/actions-netlify@v1.1
