@@ -25,6 +25,7 @@ jobs:
         channel: 'stable'
     - run: flutter pub get
     - run: flutter test
+    - run: flutter build web
     - name: Codecov
       uses: codecov/codecov-action@v2.1.0
       with:
