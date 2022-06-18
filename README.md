@@ -1,10 +1,10 @@
 # ReactionTester
-A small Flutter app designed to test your reaction time and your pattern recognition skills. \
-![License](https://img.shields.io/github/license/Pocoyo-dev/reactiontester) \
-![Downloads](https://img.shields.io/github/downloads/Pocoyo-dev/reactiontester/total) \
-![Build Status](https://img.shields.io/github/workflow/status/Pocoyo-dev/reactiontester/Dart%20-%20Flutter) \
-![Lines of code](https://img.shields.io/tokei/lines/github/Pocoyo-dev/reactiontester) \
-![Code Size](https://img.shields.io/github/languages/code-size/Pocoyo-dev/reactiontester) 
+![License](https://img.shields.io/github/license/Pocoyo-dev/reactiontester) ![Downloads](https://img.shields.io/github/downloads/Pocoyo-dev/reactiontester/total) 
+![Build Status](https://img.shields.io/github/workflow/status/Pocoyo-dev/reactiontester/Dart%20-%20Flutter)
+![Lines of code](https://img.shields.io/tokei/lines/github/Pocoyo-dev/reactiontester) 
+![Code Size](https://img.shields.io/github/languages/code-size/Pocoyo-dev/reactiontester) \
+A small Flutter app designed to test your reaction time and your pattern recognition skills.
+
 
 ## But Why?
 Often overlooked, reaction time and pattern recognition skills are essential to human life. The point of this app is to allow you to test these skills in the form of a simple game. 
